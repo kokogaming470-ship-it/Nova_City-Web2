@@ -427,7 +427,9 @@ addEventListener('DOMContentLoaded',()=>{intro();bg();fx();renderRules();renderT
 <script>
 /* ===== SUPABASE: ضع القيم هنا ===== */
 const SB_URL="https://dghgkcicuziiuipqlhjb.supabase.co",SB_KEY="sb_publishable_j1xp8xPaV7xW593XDgUkVg_js3deQYM";
-const ADMIN_EMAIL="admin@nova-city.app";
+const DISCORD_CLIENT_ID="1525287436198875266";
+const ADMIN_HASH="2fb7a4d6c4aaad9ebf705fec96b646916a3feaf252920bc6e261b3981d92edc0";
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const INFO=`🏙️ مدينة نوفا – Nova City
 مرحبًا بكم في مدينة نوفا 🌍
 مدينة نوفا هي أول مدينة عربية واقعية تنشأ داخل عالم ماينكرافت، حيث تقدم تجربة حياة واقعية ممتعة وتفاعلية للاعبين.
@@ -449,16 +451,27 @@ async function loadAll(){if(!SB_OK)return;
  if(S.user||S.admin){S.tickets=srt(await rows('tickets'));S.apps=srt(await rows('apps'));S.logs=S.admin?srt(await rows('logs')):[]}
  else{S.tickets=[];S.apps=[];S.logs=[]}
  const a=document.activeElement;if(!(a&&a.closest&&a.closest('#admin-panel')))renderRules();renderTuts();checkStatus();refresh()}
-function setUser(u){S.admin=!!u&&u.app_metadata?.provider==='email'&&u.email===ADMIN_EMAIL;const m=u?.user_metadata||{};
- S.user=u&&!S.admin?{id:u.id,username:m.custom_claims?.global_name||m.full_name||m.name||'لاعب',avatar:m.avatar_url||'',did:m.provider_id||'',email:u.email||''}:null;authUI();S.admin?adminUI():adminOff();loadAll()}
-function startSB(){if(!SB_OK)return;
- sb.auth.onAuthStateChange((e,se)=>setUser(se?.user||null));let rt;sb.channel('nova').on('postgres_changes',{event:'*',schema:'public'},()=>{clearTimeout(rt);rt=setTimeout(loadAll,400)}).subscribe();loadAll()}
+async function initAuth(){
+ const p=new URLSearchParams(location.hash.slice(1));
+ if(p.get('access_token')){
+  history.replaceState(null,'',location.pathname+location.search);
+  const tk=p.get('access_token'),ex=Date.now()+(+p.get('expires_in')||604800)*1000;
+  try{const r=await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+tk}});if(!r.ok)throw 0;const d=await r.json();
+   localStorage.setItem('nova_dc',JSON.stringify({id:d.id,did:d.id,username:d.global_name||d.username,avatar:d.avatar?`https://cdn.discordapp.com/avatars/${d.id}/${d.avatar}.png?size=128`:'',ex}));toast('✅ تم تسجيل الدخول بديسكورد')}
+  catch(e){toast('❌ فشل تسجيل الدخول بديسكورد')}
+ }else if(p.get('error')){history.replaceState(null,'',location.pathname+location.search);toast('تم إلغاء تسجيل الدخول')}
+ let u=null;try{u=JSON.parse(localStorage.getItem('nova_dc')||'null')}catch(e){}
+ if(u&&u.ex<Date.now()){localStorage.removeItem('nova_dc');u=null}
+ if(sessionStorage.getItem('nova_admin')==='1'){S.admin=true;S.user=null;adminUI()}else{S.admin=false;S.user=u}
+ authUI()}
+async function startSB(){await initAuth();if(!SB_OK)return;
+ let rt;sb.channel('nova').on('postgres_changes',{event:'*',schema:'public'},()=>{clearTimeout(rt);rt=setTimeout(loadAll,400)}).subscribe();loadAll()}
 addEventListener('DOMContentLoaded',startSB);
-async function discordLogin(){if(need())return;const{error}=await sb.auth.signInWithOAuth({provider:'discord',options:{redirectTo:location.origin+location.pathname}});if(error)toast('❌ '+error.message)}
+function discordLogin(){const ru=location.origin+location.pathname;location.href='https://discord.com/oauth2/authorize?client_id='+DISCORD_CLIENT_ID+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(ru)}
 function openLogin(){discordLogin()}
-function logout(){sb&&sb.auth.signOut()}
+function logout(){localStorage.removeItem('nova_dc');sessionStorage.removeItem('nova_admin');S.user=null;S.admin=false;adminOff();authUI();switchTab('home');loadAll()}
 function authUI(){$('auth').innerHTML=S.admin?`<div class="ubadge"><b>👑 الأدمن</b><button class="lo" onclick="logout()">خروج</button></div>`:S.user?`<div class="ubadge"><img src="${esc(S.user.avatar)}" referrerpolicy="no-referrer" alt=""><b>${esc(S.user.username)}</b><button class="lo" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button></div>`:`<button class="btn-auth" onclick="discordLogin()"><i class="fa-brands fa-discord"></i><span>تسجيل الدخول بـ Discord</span></button>`}
-async function verifyAdmin(){if(need())return;const{error}=await sb.auth.signInWithPassword({email:ADMIN_EMAIL,password:$('apw').value});if(error)return toast('❌ كلمة المرور غير صحيحة');$('apm').classList.remove('on');$('apw').value='';$('aintro').classList.add('on');setTimeout(()=>{$('aintro').classList.remove('on');switchTab('admin-panel')},2400)}
+async function verifyAdmin(){if(await sha($('apw').value)!==ADMIN_HASH)return toast('❌ كلمة المرور غير صحيحة');sessionStorage.setItem('nova_admin','1');S.admin=true;S.user=null;authUI();adminUI();loadAll();$('apm').classList.remove('on');$('apw').value='';$('aintro').classList.add('on');setTimeout(()=>{$('aintro').classList.remove('on');switchTab('admin-panel')},2400)}
 function adminUI(){$('alb').style.display='none';$('apb').style.display=$('agb').style.display='flex'}
 function adminOff(){$('alb').style.display='flex';$('apb').style.display=$('agb').style.display='none'}
 async function submitTicket(e){e.preventDefault();if(need())return;if(!S.user)return toast('سجّل الدخول بـ Discord أولاً');const id='TICK-'+Date.now().toString().slice(-6),o={id,category:$('tcat').value,userId:S.user.id,username:S.user.username,details:$('tdet').value,status:'مفتوحة',exactTimestamp:ts(),ts:Date.now(),replies:[]};
@@ -488,8 +501,8 @@ async function checkStatus(man){const d=$('sdisp');if(!d)return;const mode=S.sit
  if(mode==='maint')return card('🛠️','#ffb020','السيرفر في صيانة',mm);if(mode==='open')return card('🟢','#2ecc71','السيرفر مفتوح',mm);if(mode==='closed')return card('🔴','#e74c3c','السيرفر مقفول',mm);
  if(man||!d.innerHTML)d.innerHTML='<p style="color:#aaa;font-weight:700">⏳ جاري قراءة حالة السيرفر الحقيقية...</p>';
  const r=await readSrv();if(!r.length)return card('⚠️','#ffd700','تعذر قراءة حالة السيرفر','<p style="color:#a0a0c0">كل مصادر الفحص لم ترد، حاول بعد قليل</p>');
- const on=r.find(a=>a.st==='on'),sa=r.find(a=>a.st==='start'),tm=`<p style="color:#777;font-size:.75rem">آخر فحص: ${new Date().toLocaleTimeString('ar-EG')} — ${r.map(a=>a.src).join(' + ')}</p>`;
- if(on)return card('🟢','#2ecc71','السيرفر مفتوح',`<p style="font-weight:800;font-size:1.15rem">اللاعبين الآن: ${on.p?.online??0} / ${on.p?.max??0}</p>${on.v?`<p style="color:var(--c)">الإصدار: ${esc(on.v)}</p>`:''}${tm}`);
+ const cnt=k=>r.filter(a=>a.st===k).length,top=cnt('on')>cnt('off')+cnt('start')?'on':cnt('start')>cnt('on')&&cnt('start')>=cnt('off')?'start':cnt('off')>=cnt('on')?'off':r[0].st,on=top==='on'?r.find(a=>a.st==='on'):null,sa=top==='start'?r.find(a=>a.st==='start'):null,tm=`<p style="color:#777;font-size:.75rem">آخر فحص: ${new Date().toLocaleTimeString('ar-EG')} — ${r.map(a=>a.src).join(' + ')}</p>`;
+ if(on)return card('🟢','#2ecc71','السيرفر مفتوح',tm);
  if(sa)return card('🟡','#ffb020','السيرفر بيشتغل دلوقتي...','<p style="color:#a0a0c0">استنى دقيقة وحدّث الصفحة</p>'+tm);
  card('🔴','#e74c3c','السيرفر مقفول',tm)}
 function bg(){const c=$('bg'),x=c.getContext('2d');let W,H,B=[],D=[],t=0;const m={x:.5,y:.5,tx:.5,ty:.5};
