@@ -2,748 +2,487 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#07040f">
-<title>Nova City RP - السيرفر الأول في مصر</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Cinzel:wght@600;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050210">
+<title>Nova City RP</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Cinzel:wght@600;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+<!--
+شغّل مرة واحدة في Supabase SQL Editor:
+create table if not exists kv(id text primary key, data jsonb);
+create table if not exists apps(id text primary key, user_id text, ts bigint, data jsonb);
+create table if not exists visits(id bigint generated always as identity primary key, ts bigint, data jsonb);
+alter table kv enable row level security; alter table apps enable row level security; alter table visits enable row level security;
+create policy "kv all" on kv for all using(true) with check(true);
+create policy "apps all" on apps for all using(true) with check(true);
+create policy "visits all" on visits for all using(true) with check(true);
+-->
 <style>
-:root{--bg:#07040f;--p:#7c3aed;--c:#c4b5fd;--pk:#c084fc;--g:#e7d6a8;--bd:rgba(167,139,250,.16);--bd2:rgba(167,139,250,.34);--no:#f87171;--mut:#a79fc0;--hh:112px}
+:root{--bg:#050210;--p:#7c3aed;--c:#c4b5fd;--g:#e7d6a8;--bd:rgba(167,139,250,.18);--bd2:rgba(167,139,250,.38);--mut:#a79fc0;--no:#fb7185;--ok:#34d399}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:#ece8f7;overflow-x:hidden;min-height:100vh;line-height:1.7;-webkit-tap-highlight-color:transparent}
-h2{font-size:clamp(1.35rem,4.5vw,1.9rem);font-weight:800}h3{font-weight:800}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:#ece8f7;min-height:100vh;line-height:1.7;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 ::selection{background:rgba(139,92,246,.45)}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(139,92,246,.35);border-radius:10px;border:2px solid var(--bg)}::-webkit-scrollbar-track{background:transparent}
-select option{background:#120a26;color:#fff}
-#bg{position:fixed;inset:0;z-index:-2;width:100%;height:100%}
-.vig{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 30%,transparent 55%,rgba(3,1,10,.55))}
-#prog{position:fixed;top:0;right:0;height:2px;width:0;z-index:100001;background:linear-gradient(90deg,#6d28d9,#c4b5fd)}
-#intro{position:fixed;inset:0;z-index:9999999;display:flex;justify-content:center;align-items:center;overflow:hidden}
-@keyframes load{to{width:100%}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-@keyframes float{50%{transform:translateY(-10px)}}
-.flash{position:fixed;inset:0;background:#e9e0ff;z-index:99999990;opacity:0;pointer-events:none;transition:opacity 1.1s ease-out}
-#aintro{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,#2a1260,#05030c 70%);z-index:999999;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px}
-#aintro.on{display:flex;animation:fadeUp .6s}
-#aintro h1{font-family:'Cinzel','Cairo',serif;font-weight:900;font-size:clamp(1.3rem,5vw,2.6rem);letter-spacing:.12em;line-height:1.5;color:#fff;text-shadow:0 0 40px rgba(139,92,246,.8)}
-header{position:fixed;top:0;left:0;width:100%;z-index:10000;background:rgba(9,5,20,.78);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border-bottom:1px solid var(--bd);padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));display:flex;justify-content:space-between;align-items:center;gap:14px}
-.logo{font-family:'Cinzel','Cairo',serif;font-size:1.45rem;font-weight:900;letter-spacing:.14em;white-space:nowrap;background:linear-gradient(180deg,#fff,#c4b5fd);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-nav{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(139,92,246,.07);border:1px solid var(--bd);overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+::-webkit-scrollbar{width:9px}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,.35);border-radius:9px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-2;filter:brightness(.62) saturate(.9)}
+.vig{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 25%,transparent 35%,rgba(2,0,8,.8))}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='.8' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#prog{position:fixed;top:0;right:0;height:2px;width:0;z-index:99;background:linear-gradient(90deg,#6d28d9,var(--g))}
+/* ---------- header ---------- */
+header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;background:rgba(8,4,18,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--bd)}
+.logo{font-family:'Cinzel',serif;font-weight:900;font-size:1.35rem;letter-spacing:.14em;white-space:nowrap;background:linear-gradient(110deg,#fff 30%,var(--c) 45%,var(--g) 50%,var(--c) 56%,#fff 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 5s linear infinite}
+nav{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(139,92,246,.07);border:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;max-width:100%}
 nav::-webkit-scrollbar{display:none}
-.nb{padding:9px 14px;min-height:40px;border:none;background:transparent;color:var(--mut);font-weight:700;font-size:.85rem;border-radius:10px;display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;transition:background .2s,color .2s}
-.nb.active{color:#fff;background:rgba(139,92,246,.28);box-shadow:inset 0 0 0 1px rgba(196,181,253,.28)}
-.auth{display:flex;align-items:center}
-.btn-auth{background:#5865F2;color:#fff;border:none;padding:9px 16px;min-height:42px;border-radius:12px;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:9px;white-space:nowrap}
-.ubadge{display:flex;align-items:center;gap:9px;background:rgba(139,92,246,.12);border:1px solid var(--bd2);padding:5px 12px;border-radius:30px}
-.ubadge img{width:32px;height:32px;border-radius:50%;border:2px solid var(--c)}
-.lo{background:rgba(248,113,113,.14);border:1px solid var(--no);color:var(--no);padding:4px 9px;border-radius:8px;font-weight:800}
-main{padding:calc(var(--hh) + 22px) 16px 30px;min-height:100vh;max-width:1180px;margin:0 auto}
-.sec{display:none}.sec.active{display:block;animation:secIn .45s cubic-bezier(.2,.8,.2,1)}
-@keyframes secIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.card{position:relative;background:linear-gradient(180deg,rgba(26,14,52,.66),rgba(14,8,30,.78));border:1px solid var(--bd);border-radius:22px;padding:clamp(18px,4vw,30px);margin-bottom:22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 48px rgba(3,1,10,.5),inset 0 1px 0 rgba(255,255,255,.05)}
-.rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
-.card.hero{background:none;border:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:clamp(30px,9vw,100px) 4px clamp(40px,14vw,170px);text-align:start}
-.hero h1{font-size:clamp(2.4rem,9vw,5.2rem);font-weight:900;line-height:1.15;color:#f6f2ff;text-shadow:0 2px 44px rgba(124,58,237,.6)}
-.type{min-height:2rem;font-size:clamp(1rem,3.4vw,1.35rem);color:var(--c);font-weight:700;margin-top:14px}
-.type::after{content:"";display:inline-block;width:2px;height:1.1em;background:var(--c);margin-inline-start:4px;vertical-align:-.15em;animation:blink .9s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
-.stats{display:flex;gap:10px 28px;flex-wrap:wrap;margin:28px 0 8px}
-.stat{display:flex;align-items:baseline;gap:8px;padding-inline-end:28px;border-inline-end:1px solid var(--bd)}.stat:last-child{border:none;padding:0}
-.stat b{font-size:1.9rem;font-weight:900;color:#fff}.stat span{color:var(--mut);font-weight:700;font-size:.9rem}
-.btn-ds{display:inline-flex;align-items:center;gap:12px;background:#5865F2;color:#fff;padding:14px 26px;min-height:50px;border-radius:14px;font-size:1.02rem;font-weight:800;text-decoration:none;margin-top:22px;box-shadow:0 10px 30px rgba(88,101,242,.4);transition:transform .2s,box-shadow .2s}
-.fg{margin-bottom:16px}.fg label{display:block;margin-bottom:7px;font-weight:700;color:var(--c);font-size:.9rem}
-.fg input,.fg select,.fg textarea,.rs,.ed input,.ed textarea,.rep input{background:rgba(8,4,18,.7);border:1px solid var(--bd);border-radius:12px;color:#fff;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
-.fg input,.fg select,.fg textarea{width:100%;padding:12px 14px}
-.fg input:focus,.fg select:focus,.fg textarea:focus,.rs:focus,.ed input:focus,.ed textarea:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
-.sub{position:relative;overflow:hidden;width:100%;min-height:48px;padding:13px 16px;background:linear-gradient(180deg,#8b5cf6,#6d28d9);color:#fff;border:1px solid rgba(196,181,253,.35);border-radius:13px;font-size:1rem;font-weight:800;box-shadow:0 8px 22px rgba(109,40,217,.38),inset 0 1px 0 rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;gap:10px;transition:filter .2s,transform .15s}
-.sub:active{transform:scale(.98)}
-.modal{position:fixed;inset:0;background:rgba(4,2,10,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:999000;display:none;justify-content:center;align-items:center}
-.modal.on{display:flex;animation:fadeUp .35s}
-.mbox{background:linear-gradient(160deg,rgba(26,14,52,.97),rgba(10,5,22,.98));border:1px solid var(--bd2);border-radius:22px;padding:28px;width:90%;max-width:420px;box-shadow:0 0 70px rgba(109,40,217,.4)}
-.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px;margin-top:20px}
-.rc{background:rgba(10,5,22,.55);border:1px solid var(--bd);border-radius:16px;padding:18px 20px;position:relative;transition:border-color .25s}
-.rc::before{content:"";position:absolute;inset-block:16px;inset-inline-start:0;width:2px;border-radius:2px;background:linear-gradient(var(--c),transparent);opacity:.7}
-.rc h3{color:var(--c);font-size:1.05rem;margin-bottom:10px}
-.rc p{font-size:.93rem;line-height:1.9;color:#ddd7ee;margin-bottom:4px}
-.rc .no{color:#fda4a4}.rc .ex{color:var(--g)}.rc .num{display:none}
-.rs{width:100%;margin-top:16px;padding:12px 16px}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:30px}
-.col{background:rgba(10,5,22,.6);border:1px solid var(--bd);border-radius:20px;padding:18px}
-.col h3{color:var(--c);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
-.tl{display:flex;flex-direction:column;gap:14px}
-.tk{background:rgba(10,5,22,.55);border:1px solid var(--bd);border-radius:14px;padding:14px}
-.th{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:8px;margin-bottom:10px;gap:8px}
-.sb{padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:800}
-.s-p{background:rgba(231,214,168,.12);color:var(--g);border:1px solid rgba(231,214,168,.4)}.s-a{background:rgba(52,211,153,.14);color:#34d399;border:1px solid #34d399}.s-r{background:rgba(248,113,113,.14);color:var(--no);border:1px solid var(--no)}
-.chat{background:rgba(0,0,0,.4);border-radius:12px;padding:10px;margin-top:8px;max-height:170px;overflow-y:auto}
-.m{margin-bottom:6px;padding:6px 10px;border-radius:8px;font-size:.85rem}.m.admin{background:rgba(139,92,246,.25);border-inline-start:3px solid #8b5cf6}.m.user{background:rgba(255,255,255,.05);border-inline-start:3px solid #718093}
-.mini{padding:7px 13px;border:none;border-radius:8px;font-weight:800;font-size:.8rem;color:#fff;margin-inline-start:5px}
-.close{background:rgba(248,113,113,.9);color:#fff;border:none;padding:10px;border-radius:10px;font-weight:800;font-size:.85rem;margin-top:10px;width:100%}
-.rep{display:flex;gap:8px;margin-top:8px}.rep input{padding:9px 10px;flex:1;min-width:0;border-radius:8px}.rep button{background:#7c3aed;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:700}
-.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:18px;margin-top:20px}
-.mi{background:rgba(10,5,22,.6);border:1px solid var(--bd);border-radius:16px;overflow:hidden;transition:border-color .25s,transform .25s}
-.mi img,.mi video{width:100%;height:180px;object-fit:cover;display:block}
-.ed{border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:12px;background:rgba(10,5,22,.45)}
-.ed input,.ed textarea{width:100%;padding:10px 12px;margin-bottom:8px}
-.sico{font-size:3.6rem;animation:float 3.4s ease-in-out infinite}
-#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translate(-50%,160px);max-width:90vw;text-align:center;background:rgba(16,9,34,.96);border:1px solid var(--bd2);padding:13px 24px;border-radius:14px;font-weight:800;z-index:9999998;box-shadow:0 10px 40px rgba(76,29,149,.5);transition:transform .45s cubic-bezier(.2,1.2,.4,1)}#toast.on{transform:translate(-50%,0)}
-footer{text-align:center;padding:24px 16px calc(env(safe-area-inset-bottom,0px) + 24px);border-top:1px solid var(--bd);background:rgba(5,2,12,.8)}
-.tbox{background:linear-gradient(160deg,#150a30,#07030f);border:1px solid var(--bd2);border-radius:24px;width:92%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 0 80px rgba(109,40,217,.4);overflow:hidden}
-.th2{padding:24px 26px 14px;text-align:center;border-bottom:1px solid var(--bd)}
-.th2 h2{color:#fff}
-.tbody{overflow-y:auto;padding:18px 24px}
-.ti{padding:14px 16px;margin-bottom:12px;border-radius:14px;background:rgba(255,255,255,.03);border-inline-start:3px solid #8b5cf6}
-.ti h4{color:var(--c);margin-bottom:6px}.ti p{line-height:1.9;color:#ddd7ee;font-size:.93rem}
-.tf{padding:16px 24px;border-top:1px solid var(--bd)}.tl2{color:var(--mut);text-decoration:underline;font-weight:700;margin-top:8px;display:inline-block}
-@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-body.go header{animation:enter .8s cubic-bezier(.2,.8,.2,1) both}
-body.go .hero>*{animation:enter .9s cubic-bezier(.2,.8,.2,1) both}
-body.go .hero>*:nth-child(2){animation-delay:.12s}body.go .hero>*:nth-child(3){animation-delay:.24s}body.go .hero>*:nth-child(4){animation-delay:.36s}
-@media(hover:hover){.nb:hover{color:#fff;background:rgba(139,92,246,.16)}.btn-ds:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(88,101,242,.55)}.sub:hover{filter:brightness(1.12)}.rc:hover,.mi:hover{border-color:var(--bd2)}.mi:hover{transform:translateY(-4px)}}
-@media(max-width:850px){header{flex-wrap:wrap;gap:8px 12px;padding-bottom:8px}.logo{font-size:1.2rem;order:1}.auth{order:2;margin-inline-start:auto}nav{order:3;width:100%}.split{grid-template-columns:1fr}main{padding-inline:12px}.stat{padding-inline-end:18px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-/* ===== LUX LAYER ===== */
-:root{--gold:#e7d6a8}
-@keyframes sweep{0%{left:-30%}100%{left:100%}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes shine{to{background-position:-250% 0}}
-@keyframes glint{0%{left:-80%}40%,100%{left:140%}}
-@keyframes rip{to{transform:scale(4);opacity:0}}
-@keyframes mq{to{transform:translateX(-50%)}}
-@keyframes pIn{to{opacity:1;transform:none}}
-@keyframes wIn{from{opacity:0;transform:translateY(34px) scale(1.06);filter:blur(12px)}to{opacity:1;transform:none;filter:none}}
-@keyframes pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
-@keyframes bob{50%{transform:translateY(-3px) rotate(-8deg)}}
-@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(8vmax,6vmax) scale(1.2)}}
-@media(pointer:fine){body{cursor:none}button,a,select,label{cursor:none}}
-#cur{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 16px #c4b5fd;z-index:99999999;pointer-events:none;transform:translate(-50%,-50%)}
-#cur2{position:fixed;width:36px;height:36px;border:1px solid rgba(196,181,253,.8);border-radius:50%;z-index:99999998;pointer-events:none;transform:translate(-50%,-50%);transition:width .25s,height .25s,background .25s,border-color .25s}
-#cur2.hov{width:60px;height:60px;background:rgba(139,92,246,.14);border-color:var(--gold)}
-.orb{position:fixed;z-index:-1;border-radius:50%;pointer-events:none;filter:blur(70px);opacity:.5;translate:0 calc(var(--sy,0)*-.1px);animation:drift 26s ease-in-out infinite alternate}
-.orb.o1{width:46vmax;height:46vmax;left:-14vmax;top:-10vmax;background:radial-gradient(circle,#7c3aed,transparent 65%)}
-.orb.o2{width:38vmax;height:38vmax;right:-12vmax;top:30vh;background:radial-gradient(circle,#c026d3,transparent 65%);animation-duration:32s;animation-delay:-8s;opacity:.28}
-.orb.o3{width:34vmax;height:34vmax;left:20vw;bottom:-16vmax;background:radial-gradient(circle,#4f46e5,transparent 65%);animation-duration:38s;animation-delay:-15s;opacity:.38}
-header::after{content:"";position:absolute;bottom:-1px;left:0;height:1px;width:30%;background:linear-gradient(90deg,transparent,var(--gold),#a78bfa,transparent);animation:sweep 4s linear infinite}
-.logo{background-image:linear-gradient(110deg,#fff 30%,#c4b5fd 44%,var(--gold) 50%,#c4b5fd 56%,#fff 70%);background-size:250% 100%;animation:shine 5s linear infinite;filter:drop-shadow(0 0 14px rgba(167,139,250,.5))}
-nav{position:relative}
-.nav-ind{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:10px;background:linear-gradient(180deg,rgba(139,92,246,.4),rgba(109,40,217,.3));box-shadow:0 0 22px rgba(139,92,246,.45),inset 0 0 0 1px rgba(196,181,253,.35);transition:left .45s cubic-bezier(.2,.9,.2,1),width .45s cubic-bezier(.2,.9,.2,1);z-index:0}
-.nb{position:relative;z-index:1;overflow:hidden}.nb.active{background:none;box-shadow:none}
-.nb:hover i{animation:bob .6s}
-.btn-auth{position:relative;overflow:hidden}
-.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s linear;pointer-events:none}
-.sub::after,.btn-ds::after{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:glint 4.5s infinite;pointer-events:none}
-.btn-ds{position:relative;overflow:hidden}
-.card{overflow:hidden}.card.hero{overflow:visible}
-.card:not(.hero)::before{content:"";position:absolute;top:0;left:-40%;width:40%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:sweep 6s linear infinite;pointer-events:none}
-.card:not(.hero)::after,.rc::after,.tk::after,.col::after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(360px circle at var(--mx,50%) var(--my,0%),rgba(139,92,246,.15),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
-.card:not(.hero):hover::after,.rc:hover::after,.tk:hover::after,.col:hover::after{opacity:1}
-.tk,.col{position:relative}
-.rv.rdy{transition:transform .18s ease-out,opacity .3s,border-color .25s,box-shadow .25s}
-.tk.rv{transform:translateX(34px)}.tk.rv.in{transform:none}
-.mi.rv{transform:translateY(30px) scale(.94)}.mi.rv.in{transform:none}
-h2::after{content:"";display:block;height:2px;width:0;margin-top:8px;border-radius:2px;background:linear-gradient(90deg,var(--gold),transparent);transition:width 1s .35s cubic-bezier(.2,.9,.2,1)}
-h2.in::after{width:84px}h2[style*="center"]::after{margin-inline:auto;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.hero>*{position:relative;z-index:1}
-.hero h1{background:none;text-shadow:none;color:inherit}
-.hero .w{display:inline-block;opacity:0;background:linear-gradient(110deg,#fff 30%,#c4b5fd 44%,var(--gold) 50%,#c4b5fd 56%,#fff 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 30px rgba(124,58,237,.6))}
-body.go .hero .w{animation:wIn 1s cubic-bezier(.2,.9,.2,1) forwards,shine 6s linear infinite;animation-delay:calc(var(--k)*.16s + .25s),calc(var(--k)*.4s + 1.4s)}
-body.go .hero>h1,body.go .hero>.emb{animation:none}
-.emb{position:absolute;inset-inline-end:2%;top:50%;width:min(44vw,420px);aspect-ratio:1;transform:translateY(-50%);pointer-events:none;opacity:.95}
+.nb{display:flex;align-items:center;gap:7px;padding:9px 14px;min-height:40px;border-radius:10px;color:var(--mut);font-weight:700;font-size:.85rem;white-space:nowrap;transition:.2s}
+.nb:hover{color:#fff;background:rgba(139,92,246,.16)}
+.nb.on{color:#fff;background:rgba(139,92,246,.3);box-shadow:inset 0 0 0 1px rgba(196,181,253,.3)}
+.auth{display:flex;align-items:center;gap:8px}
+.dc{display:flex;align-items:center;gap:9px;background:#5865F2;color:#fff;padding:9px 16px;border-radius:12px;font-weight:800;font-size:.85rem}
+.ub{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border-radius:30px;border:1px solid var(--bd2);background:rgba(139,92,246,.12);font-weight:700;font-size:.85rem}
+.ub img{width:30px;height:30px;border-radius:50%}
+.ib{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--bd)}
+@media(max-width:850px){nav{order:3;width:100%}.auth{margin-inline-start:auto}}
+/* ---------- layout ---------- */
+main{max-width:1100px;margin:0 auto;padding:150px 16px 40px;min-height:100vh}
+@media(min-width:851px){main{padding-top:110px}}
+.sec{display:none}
+.sec.on{display:block;animation:secIn .5s cubic-bezier(.2,.8,.2,1)}
+.card{position:relative;overflow:hidden;margin-bottom:20px;padding:clamp(18px,4vw,30px);border-radius:22px;border:1px solid var(--bd);background:linear-gradient(180deg,rgba(22,11,46,.74),rgba(8,4,20,.88));box-shadow:0 18px 48px rgba(3,1,10,.5),inset 0 1px 0 rgba(255,255,255,.05)}
+.card::before{content:"";position:absolute;top:0;left:-40%;width:40%;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);animation:sweep 6s linear infinite}
+h2{font-size:clamp(1.4rem,4.5vw,2rem);font-weight:900}
+h3{font-weight:800}
+.fg{margin-bottom:14px}
+.fg label{display:block;margin-bottom:6px;font-weight:700;color:var(--c);font-size:.9rem}
+.fg input,.fg select,.fg textarea,.in{width:100%;padding:12px 14px;border-radius:12px;font-size:16px;outline:none;background:rgba(8,4,18,.75);border:1px solid var(--bd);transition:.2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus,.in:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
+select option{background:#120a26}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 24px;border-radius:13px;font-weight:800;color:#fff;text-decoration:none;background:linear-gradient(180deg,#8b5cf6,#6d28d9);border:1px solid rgba(196,181,253,.35);box-shadow:0 8px 22px rgba(109,40,217,.38);transition:.2s}
+.btn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.btn::after{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-20deg);animation:glint 4.5s infinite}
+.btn.alt{background:linear-gradient(180deg,#5865F2,#4752c4)}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none}
+.btn.full{width:100%}
+.mini{padding:6px 12px;border-radius:8px;font-weight:800;font-size:.8rem;color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ed{padding:12px;margin-bottom:10px;border-radius:14px;border:1px solid var(--bd);background:rgba(10,5,22,.5)}
+.ed .in{margin-bottom:8px}
+.ed input[type=checkbox]{width:auto}
+.tk{padding:14px;margin-bottom:12px;border-radius:14px;border:1px solid var(--bd);background:rgba(10,5,22,.55)}
+.sb{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:800;border:1px solid var(--g);color:var(--g)}
+/* ---------- hero ---------- */
+.hero{padding:clamp(24px,8vw,90px) 4px 30px;position:relative}
+.hero h1{font-size:clamp(2.4rem,9vw,5rem);font-weight:900;line-height:1.15}
+.hero h1 span{display:inline-block;opacity:0;background:linear-gradient(110deg,#fff 30%,var(--c) 45%,var(--g) 50%,var(--c) 56%,#fff 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:wIn 1s cubic-bezier(.2,.9,.2,1) forwards,shine 6s linear infinite;animation-delay:calc(var(--k)*.16s + .2s),1.4s}
+.type{min-height:2rem;margin-top:14px;font-size:clamp(1rem,3.4vw,1.35rem);font-weight:700;color:var(--c)}
+.type::after{content:"";display:inline-block;width:2px;height:1.1em;margin-inline-start:4px;vertical-align:-.15em;background:var(--c);animation:blink .9s steps(1) infinite}
+.emb{position:absolute;inset-inline-end:2%;top:50%;width:min(40vw,380px);aspect-ratio:1;transform:translateY(-50%);pointer-events:none;opacity:.9}
 .emb i{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(196,181,253,.38);animation:spin 42s linear infinite}
-.emb i::after{content:"";position:absolute;top:-5px;left:50%;width:9px;height:9px;margin-left:-4px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 14px var(--gold)}
-.emb i:nth-child(2){inset:11%;border:1px solid rgba(231,214,168,.3);animation-duration:30s;animation-direction:reverse}
-.emb i:nth-child(3){inset:24%;border:1px dotted rgba(167,139,250,.6);animation-duration:20s}
-.emb i:nth-child(4){inset:37%;border:2px solid transparent;border-top-color:#a78bfa;border-bottom-color:rgba(231,214,168,.7);animation-duration:9s}
-.emb i:nth-child(n+2)::after{display:none}
-.emb b{position:absolute;inset:44%;border-radius:50%;background:radial-gradient(circle,#fff,#a78bfa 40%,transparent 70%);animation:pulse 3s ease-in-out infinite}
-.tick{overflow:hidden;direction:ltr;margin:0 0 26px;border-block:1px solid var(--bd);background:rgba(10,5,22,.45);-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
-.trk{display:flex;gap:44px;width:max-content;padding:13px 0;animation:mq 34s linear infinite}
-.trk span{white-space:nowrap;font-weight:800;color:var(--c);direction:rtl;font-size:.95rem}.trk span::before{content:"◆";color:var(--gold);margin-inline-end:44px;font-size:.6rem;vertical-align:middle}
-.stat b{text-shadow:0 0 24px rgba(167,139,250,.7)}
-.rgrid{perspective:1200px}
-.rc.rv{opacity:0;transform:rotateX(-32deg) translateY(50px) scale(.94);filter:blur(6px);transition:opacity .9s,transform .9s cubic-bezier(.2,.9,.3,1),filter .9s}
-.rc.rv.in{opacity:1;transform:none;filter:none}
-.rc.rv.rdy{transition:transform .18s ease-out,border-color .3s,box-shadow .3s}
-.rc::before{height:0;transition:height .5s}.rc:hover::before{height:calc(100% - 32px)}
-.rc:hover{box-shadow:0 16px 40px rgba(124,58,237,.22)}
-.rc p{opacity:0;transform:translateX(24px)}.rc.in p{animation:pIn .6s forwards;animation-delay:calc(var(--i)*.07s + .4s)}
-.rc .num{display:block;position:absolute;top:-8px;inset-inline-start:12px;font-size:4.4rem;font-weight:900;color:rgba(255,255,255,.05);pointer-events:none;line-height:1.2}
-.sico{filter:drop-shadow(0 0 22px currentColor)}
-footer{position:relative;overflow:hidden}
-footer::before{content:"";position:absolute;top:0;left:-30%;width:30%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:sweep 5s linear infinite}
-@media(max-width:850px){.emb{inset-inline-end:-22%;width:78vw;opacity:.38}.orb{filter:blur(44px)}}
-/* ===== LUX SELECT ===== */
-@keyframes lxIn{from{opacity:0;transform:translateY(24px) scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
-@keyframes lxPop{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
-.lxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:12px}
-.lxc{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:20px 14px 16px;border-radius:18px;color:#fff;background:linear-gradient(170deg,rgba(28,15,56,.85),rgba(10,5,22,.9));border:1px solid var(--bd);box-shadow:0 10px 30px rgba(3,1,10,.45);animation:lxIn .7s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i)*.08s + .1s);transition:transform .25s,border-color .25s,box-shadow .25s,background .25s}
-.lxc::before{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-20deg);transition:left .7s}
-.lxc::after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at 50% 0%,var(--ac),transparent 70%);opacity:.08;transition:opacity .3s;pointer-events:none}
-.lxi{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:1.35rem;color:#fff;background:radial-gradient(circle at 30% 25%,var(--ac),rgba(10,5,22,.9) 120%);box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 8px 26px -4px var(--ac);transition:transform .4s cubic-bezier(.2,1.2,.4,1)}
-.lxc b{font-size:.98rem;font-weight:800;line-height:1.4}.lxc small{color:var(--mut);font-size:.78rem;line-height:1.5}
-.lxk{position:absolute;top:10px;inset-inline-end:10px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-style:normal;color:#1a1033;background:linear-gradient(135deg,#fff3c9,#e7d6a8);transform:scale(0)}
-.lxc.sel{border-color:#e7d6a8;background:linear-gradient(170deg,rgba(52,28,104,.9),rgba(14,7,30,.95));box-shadow:0 0 0 1px rgba(231,214,168,.5),0 16px 44px -10px var(--ac)}
-.lxc.sel::after{opacity:.28}.lxc.sel .lxk{animation:lxPop .5s cubic-bezier(.2,1.2,.4,1) forwards}.lxc.sel .lxi{transform:scale(1.1);animation:pulse 2.6s ease-in-out infinite}
-@media(hover:hover){.lxc:hover{transform:translateY(-5px)}.lxc:hover::before{left:140%}.lxc:hover::after{opacity:.22}.lxc:hover .lxi{transform:rotate(-8deg) scale(1.08)}}
+.emb i:nth-child(2){inset:12%;border:1px solid rgba(231,214,168,.3);animation-direction:reverse;animation-duration:30s}
+.emb i:nth-child(3){inset:26%;border:1px dotted rgba(167,139,250,.6);animation-duration:20s}
+.emb i:nth-child(4){inset:40%;border:2px solid transparent;border-top-color:#a78bfa;border-bottom-color:rgba(231,214,168,.7);animation-duration:9s}
+.emb b{position:absolute;inset:46%;border-radius:50%;background:radial-gradient(circle,#fff,#a78bfa 40%,transparent 70%);animation:pulse 3s infinite}
+@media(max-width:850px){.emb{opacity:.3;inset-inline-end:-20%;width:75vw}}
+.tick{overflow:hidden;direction:ltr;margin:6px 0 24px;border-block:1px solid var(--bd);background:rgba(10,5,22,.45);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.trk{display:flex;gap:44px;width:max-content;padding:12px 0;animation:mq 34s linear infinite}
+.trk span{white-space:nowrap;font-weight:800;color:var(--c);direction:rtl}
+.trk span::before{content:"◆";color:var(--g);margin-inline-end:44px;font-size:.6rem}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px}
+.mc{position:relative;overflow:hidden;text-align:start;padding:20px 18px;border-radius:18px;border:1px solid var(--bd);background:linear-gradient(160deg,rgba(30,14,60,.8),rgba(8,4,20,.9));transition:.25s}
+.mc::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 100% 0,var(--ac),transparent 60%);opacity:.14}
+.mc i{display:block;margin-bottom:10px;font-size:1.5rem;color:var(--ac);filter:drop-shadow(0 0 10px var(--ac))}
+.mc b{display:block}
+.mc small{color:var(--mut);font-size:.8rem}
+.mc:hover{transform:translateY(-5px);border-color:var(--ac)}
+/* ---------- status ---------- */
+.stc{position:relative;max-width:760px;margin:0 auto;padding:26px 22px 18px;border-radius:24px;text-align:center;border:1px solid rgba(167,139,250,.4);background:radial-gradient(circle at 50% 0,#2a1260,#0a0420 70%);box-shadow:0 0 60px rgba(109,40,217,.3),inset 0 0 0 6px rgba(5,2,16,.6),inset 0 0 0 7px rgba(231,214,168,.25)}
+.stt{display:flex;justify-content:space-between;direction:ltr;font-size:.78rem;font-weight:800;letter-spacing:.15em;color:var(--c)}
+.stt span:last-child{color:var(--g)}
+.stc h2{margin:10px 0 4px;font-size:clamp(2rem,8vw,3.6rem);color:var(--c);text-shadow:0 0 34px rgba(167,139,250,.8)}
+.sts{margin-bottom:20px;font-size:.75rem;font-weight:800;letter-spacing:.35em;color:#a78bfa}
+.str{display:flex;justify-content:space-between;align-items:center;gap:16px;text-align:start;flex-wrap:wrap}
+.str>div:first-child{flex:1;min-width:230px}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:14px;direction:ltr;font-weight:900;color:var(--sc);border:2px solid var(--sc);background:rgba(0,0,0,.35);box-shadow:0 0 22px -4px var(--sc)}
+.pill i{width:16px;height:16px;border-radius:50%;background:var(--sc);box-shadow:0 0 16px var(--sc);animation:pulse 1.6s infinite}
+.pl{margin-top:16px;font-weight:800;letter-spacing:.1em;color:var(--c)}
+.pn{font-size:clamp(3.4rem,13vw,5.4rem);font-weight:900;line-height:1.1;color:#fff}
+.pn small{font-size:.38em;color:#a78bfa}
+.bar{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;margin-top:8px;direction:ltr}
+.bar b{height:22px;border-radius:5px;background:rgba(139,92,246,.14);border:1px solid rgba(167,139,250,.2)}
+.bar b.f{background:linear-gradient(180deg,var(--sc),#7c3aed);box-shadow:0 0 12px var(--sc)}
+.pc{margin-top:4px;text-align:end;direction:ltr;font-weight:800;color:var(--g)}
+.comp{position:relative;width:min(36vw,200px);aspect-ratio:1;margin:auto}
+.comp i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(196,181,253,.5);animation:spin 30s linear infinite}
+.comp i+i{inset:12%;border-style:dashed;animation-direction:reverse}
+.comp b{position:absolute;inset:22%;background:linear-gradient(135deg,#fff,#a78bfa);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 14px #a78bfa);animation:pulse 3s infinite}
+.sx{display:grid;grid-template-columns:1fr 1.6fr;gap:12px;margin-top:20px}
+.sx>div{padding:12px 14px;text-align:start;border-radius:14px;border:1px solid rgba(167,139,250,.4);background:rgba(10,5,24,.6)}
+.sx small{display:block;font-size:.7rem;font-weight:800;letter-spacing:.08em;color:var(--g)}
+.sx b{font-size:1.1rem;word-break:break-all}
+.msg{margin-top:12px;font-weight:700;color:#ffd98a}
+.pw{margin-top:14px;font-size:.8rem;font-weight:800;color:var(--c)}
+@media(max-width:560px){.sx{grid-template-columns:1fr}.comp{display:none}.bar b{height:17px}}
+/* ---------- streams ---------- */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px;margin-top:18px}
+.sc{display:block;overflow:hidden;text-decoration:none;color:#fff;border-radius:24px;border:1px solid var(--bd);background:#07040f;transition:.25s}
+.sc:hover{transform:translateY(-5px);border-color:var(--bd2)}
+.sc.off{opacity:.5}
+.sc.off .th{filter:grayscale(.8)}
+.th{position:relative;height:190px;background:#150a30 center/cover}
+.th::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,#07040f)}
+.lv,.vw{position:absolute;top:12px;z-index:2;padding:6px 12px;border-radius:9px;font-size:.8rem;font-weight:900}
+.lv{left:12px;display:flex;gap:7px;align-items:center;background:#e53e3e}
+.lv i{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+.vw{right:12px;background:rgba(0,0,0,.8);color:#ffb84d}
+.si{position:relative;z-index:2;display:flex;gap:12px;align-items:center;margin-top:-30px;padding:0 16px}
+.si img,.si .av{width:54px;height:54px;border-radius:50%;border:2px solid #f59e0b;object-fit:cover;background:#1a0f33;display:grid;place-items:center}
+.si b{display:block;color:#ffb84d}
+.si small{font-weight:700;color:var(--g)}
+.sf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding:14px 16px;border-top:1px solid var(--bd)}
+.sf span{font-size:.9rem;font-weight:800}
+.sf em{font-style:normal;white-space:nowrap;padding:7px 14px;border-radius:9px;font-size:.8rem;font-weight:800;color:#4ade80;border:1px solid #22c55e;background:rgba(34,197,94,.14)}
+/* ---------- apply ---------- */
+.ah{text-align:center;padding:10px 0}
+.bd{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:30px;font-size:.8rem;font-weight:800;border:1px solid}
+.bd i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.4s infinite}
+.bd.ok{color:var(--ok);background:rgba(52,211,153,.1)}
+.bd.no{color:var(--no);background:rgba(251,113,133,.1)}
+.ah h2{margin:14px 0 6px;background:linear-gradient(100deg,#fcd34d,#fff,#fcd34d);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:nvG 5s linear infinite}
+@keyframes nvG{to{background-position:200% 0}}
+/* ---------- terms / modal ---------- */
+.ti{padding:14px 16px;margin-bottom:12px;border-radius:14px;border-inline-start:3px solid #8b5cf6;background:rgba(255,255,255,.03)}
+.ti h4{margin-bottom:4px;color:var(--c)}
+.ti p{font-size:.93rem;line-height:1.9;color:#ddd7ee}
+.modal{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;background:rgba(4,2,10,.86);backdrop-filter:blur(10px)}
+.modal.on{display:flex}
+.mb{width:90%;max-width:400px;padding:26px;border-radius:22px;border:1px solid var(--bd2);background:linear-gradient(160deg,#1a0e34,#0a0516);box-shadow:0 0 70px rgba(109,40,217,.4)}
+footer{margin-top:20px;padding:26px 16px calc(env(safe-area-inset-bottom,0px) + 26px);text-align:center;border-top:1px solid var(--bd);background:rgba(5,2,12,.85)}
+footer p{color:rgba(255,255,255,.5);font-size:.85rem}
+footer b{display:block;margin-top:4px}
+footer a{display:inline-block;margin-top:8px;font-weight:700;color:var(--mut);text-decoration:underline}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,160px);max-width:90vw;text-align:center;padding:13px 24px;border-radius:14px;z-index:9999;font-weight:800;border:1px solid var(--bd2);background:rgba(16,9,34,.96);box-shadow:0 10px 40px rgba(76,29,149,.5);transition:transform .45s cubic-bezier(.2,1.2,.4,1)}
+#toast.on{transform:translate(-50%,0)}
+.on-l{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.on-l span{padding:5px 12px;border-radius:20px;font-size:.8rem;font-weight:700;border:1px solid var(--ok);background:rgba(52,211,153,.12)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+/* ---------- intro ---------- */
+#intro{position:fixed;inset:0;z-index:9999;overflow:hidden;background:#02000a;transition:opacity 1.1s}
+#intro.out{opacity:0;pointer-events:none}
+#ic{position:absolute;inset:0}
+.ivig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 40%,rgba(2,0,8,.92))}
+.lb{position:absolute;left:0;width:100%;height:0;background:#000;z-index:6;transition:height 1.8s cubic-bezier(.2,.9,.2,1)}
+.lb.t{top:0}
+.lb.b{bottom:0}
+#intro.go .lb{height:6vh}
+#iname{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6vh;direction:ltr;text-align:center;padding:0 12px;transition:opacity .9s,transform .9s}
+#iname.hide{opacity:0;transform:scale(1.1)}
+#imono{width:min(28vmin,210px);overflow:visible;filter:drop-shadow(0 0 22px rgba(167,139,250,.75));animation:nvF 6s ease-in-out infinite}
+.mp{fill:none;stroke:url(#gg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--l);stroke-dashoffset:var(--l);animation:mdr 2.4s cubic-bezier(.5,0,.2,1) forwards;animation-delay:1.6s}
+.mp.b{animation-delay:2.2s}
+.mp.c{stroke-width:3.4;animation-delay:2.8s}
+@keyframes mdr{to{stroke-dashoffset:0}}
+.iln{height:1px;width:0;background:linear-gradient(90deg,transparent,var(--g),transparent);box-shadow:0 0 14px rgba(231,214,168,.7);animation:iln 1.6s 3.6s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes iln{to{width:min(72vw,740px)}}
+#itt{font-family:'Cinzel',serif;font-weight:900;white-space:nowrap;font-size:clamp(1.8rem,9.6vw,6rem);letter-spacing:.5em;opacity:0;filter:blur(18px);background:linear-gradient(100deg,#8a6d2f,#e7d6a8 20%,#fff 32%,#e7d6a8 44%,#c4b5fd 60%,#8a6d2f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:itr 2.6s 3.6s cubic-bezier(.2,.8,.2,1) forwards,nvG2 4.5s 6.2s linear infinite;-webkit-box-reflect:below -6px linear-gradient(transparent 55%,rgba(255,255,255,.2))}
+@keyframes itr{to{opacity:1;filter:none;letter-spacing:.16em}}
+@keyframes nvG2{to{background-position:-300% 0}}
+#isub{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.45em;color:var(--g);font-size:clamp(.5rem,1.7vw,1rem);opacity:0;animation:iu 1.4s 6s forwards}
+#iar{font-weight:800;color:#f1ecff;font-size:clamp(1rem,2.6vw,1.6rem);opacity:0;direction:rtl;animation:iu 1.4s 6.8s forwards}
+@keyframes iu{from{opacity:0;filter:blur(10px);transform:translateY(16px)}to{opacity:1;filter:none;transform:none}}
+#icred{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .9s;background:radial-gradient(circle at 50% 45%,rgba(76,29,149,.5),rgba(3,1,10,.95) 70%)}
+#icred.on{opacity:1}
+.cin{text-align:center;direction:ltr;display:flex;flex-direction:column;align-items:center;gap:12px}
+.cin i{font-size:3rem;color:#8f9bff;filter:drop-shadow(0 0 22px #5865F2);animation:nvF 3s infinite}
+.ct{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.5em;color:var(--g);font-size:clamp(.65rem,2.2vw,1.1rem)}
+.cn{display:flex;font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2.2rem,10vw,5rem);letter-spacing:.08em}
+.cn span{display:inline-block;opacity:0;transform:translateY(40px) scale(1.4);filter:blur(16px);background:linear-gradient(180deg,#fff,#e4dcff 40%,var(--g));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:ilt 1.1s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes ilt{to{opacity:1;transform:none;filter:none}}
+#itime{position:absolute;left:0;bottom:0;width:100%;height:2px;z-index:25;background:rgba(255,255,255,.08)}
+#itime i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6d28d9,var(--g));animation:load 11s linear forwards}
+@keyframes load{to{width:100%}}
+#skip{position:absolute;top:calc(env(safe-area-inset-top,0px) + 2.5vh);left:3vh;z-index:30;padding:8px 18px;min-height:40px;border-radius:30px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08)}
+/* ---------- animations ---------- */
+@keyframes shine{to{background-position:-250% 0}}
+@keyframes sweep{0%{left:-40%}100%{left:100%}}
+@keyframes glint{0%{left:-80%}40%,100%{left:140%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes mq{to{transform:translateX(-50%)}}
+@keyframes secIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes wIn{from{opacity:0;transform:translateY(34px) scale(1.06);filter:blur(12px)}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<canvas id="bg"></canvas><div class="vig"></div>
-<div id="prog"></div><div class="flash" id="flash"></div><div id="toast"></div>
-
+<canvas id="bg"></canvas><div class="vig"></div><div class="grain"></div><div id="prog"></div><div id="toast"></div>
 <div id="intro"></div>
 
-<div id="aintro"><h1>WELCOME TO NOVA CITY CONTROL PANEL</h1><p style="margin-top:15px;font-weight:700">جاري تحميل نظام الإدارة العليا...</p></div>
-
-<div class="modal" id="tm"><div class="tbox"><div class="th2"><div style="font-size:2.4rem">⚖️</div><h2>الشروط والأحكام</h2><p style="color:#a0a0c0;font-size:.85rem;margin-top:4px">آخر تحديث: سبتمبر 2026</p></div><div class="tbody" id="tbody"></div><div class="tf"><button class="sub" onclick="$('tm').classList.remove('on')">✅ قرأت وأوافق</button></div></div></div>
-<div class="modal" id="apm"><div class="mbox">
-  <h3 style="text-align:center;margin-bottom:20px"><i class="fa-solid fa-user-shield"></i> تسجيل الدخول كـ أدمن</h3>
-  <div class="fg"><label>كلمة مرور الإدارة العليا:</label><input type="password" id="apw" placeholder="••••••••"></div>
-  <div style="display:flex;gap:10px"><button class="sub" onclick="verifyAdmin()">دخول</button><button class="sub" style="background:rgba(255,255,255,.1)" onclick="$('apm').classList.remove('on')">إلغاء</button></div>
-</div></div>
+<div class="modal" id="tm"><div class="mb" style="max-width:700px;max-height:85vh;overflow:auto">
+<h2 style="text-align:center;margin-bottom:14px">⚖️ الشروط والأحكام</h2><div id="tbody"></div>
+<button class="btn full" onclick="$('tm').classList.remove('on')">✅ قرأت وأوافق</button></div></div>
+<div class="modal" id="am"><div class="mb">
+<h3 style="text-align:center;margin-bottom:16px"><i class="fa-solid fa-user-shield"></i> دخول الإدارة</h3>
+<div class="fg"><input type="password" id="apw" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')nv.adm()"></div>
+<div class="row"><button class="btn" style="flex:1" onclick="nv.adm()">دخول</button><button class="btn ghost" onclick="$('am').classList.remove('on')">إلغاء</button></div></div></div>
 
 <header>
-  <div class="logo">NOVA CITY RP</div>
-  <nav id="nav">
-    <button class="nb active" data-t="home"><i class="fa-solid fa-house"></i> الرئيسية</button>
-    <button class="nb" data-t="rules"><i class="fa-solid fa-book"></i> القوانين</button>
-    <button class="nb" data-t="info"><i class="fa-solid fa-circle-info"></i> معلومات عامة</button>
-    <button class="nb" data-t="tutorials"><i class="fa-solid fa-video"></i> الشروحات</button>
-    <button class="nb" data-t="apply"><i class="fa-solid fa-file-pen"></i> التقديمات</button>
-    <button class="nb" data-t="open-ticket"><i class="fa-solid fa-headset"></i> فتح تذكرة</button>
-    <button class="nb" data-t="user-tickets"><i class="fa-solid fa-ticket"></i> التذاكر</button>
-    <button class="nb" data-t="server-status"><i class="fa-solid fa-server"></i> حالة السيرفر</button>
-    <button class="nb" id="alb" style="color:var(--pk)" onclick="$('apm').classList.add('on')"><i class="fa-solid fa-key"></i> تسجيل كـ أدمن</button>
-    <button class="nb" id="apb" data-t="admin-panel" style="display:none;color:var(--c)"><i class="fa-solid fa-user-shield"></i> لوحة التحكم</button>
-    <button class="nb" id="agb" data-t="admin-logs" style="display:none;color:var(--g)"><i class="fa-solid fa-box-archive"></i> سجل البيانات</button>
-  </nav>
-  <div class="auth" id="auth"></div>
+<div class="logo">NOVA CITY RP</div>
+<nav id="nav">
+<button class="nb on" data-t="home"><i class="fa-solid fa-house"></i> الرئيسية</button>
+<button class="nb" data-t="status"><i class="fa-solid fa-server"></i> حالة السيرفر</button>
+<button class="nb" data-t="streams"><i class="fa-solid fa-tower-broadcast"></i> البثوث</button>
+<button class="nb" data-t="apply"><i class="fa-solid fa-file-pen"></i> التقديم</button>
+<button class="nb" id="nbAdm" data-t="admin" style="display:none;color:#f0abfc"><i class="fa-solid fa-user-shield"></i> الإدارة</button>
+</nav>
+<div class="auth" id="auth"></div>
 </header>
 
 <main>
-<section id="home" class="sec active"><div class="card hero">
-  <h1>نوفا سيتي تُرحب بكم</h1>
-  <div class="type" id="type"></div>
-  <div class="stats">
-    
-    <div class="stat"><b data-n="100">0</b><span>% رول بلاي واقعي</span></div>
-    <div class="stat"><b data-n="1">0</b><span>الأول في مصر</span></div>
-  </div>
-  <a href="https://discord.gg/Hy7heMc7F" target="_blank" class="btn-ds"><i class="fa-brands fa-discord" style="font-size:1.5rem"></i><span>انضم لسيرفر الدعم الفني بالديسكورد</span></a>
-</div></section>
-
-<section id="rules" class="sec"><div class="card" id="rules-box"></div></section>
-<section id="info" class="sec"><div class="card" id="info-box"></div></section>
-
-<section id="tutorials" class="sec"><div class="card">
-  <h2><i class="fa-solid fa-video"></i> الشروحات</h2>
-  <p style="margin-top:10px;color:var(--c);font-weight:800">هنا بنبعت حاجات الشروحات</p>
-  <div id="tup" style="display:none;margin-top:20px;padding:18px;border:1px dashed var(--c);border-radius:16px">
-    <div class="fg"><label>عنوان الشرح:</label><input id="ttl"></div>
-    <div class="fg"><label>رابط الفيديو أو الصورة:</label><input id="turl" type="url" placeholder="https://..."></div>
-    <button class="sub" onclick="addTut()"><i class="fa-solid fa-plus"></i> نشر الشرح</button>
-  </div>
-  <div class="mg" id="tgrid"></div>
-</div></section>
-
-<section id="apply" class="sec"><div class="card" style="max-width:700px;margin:0 auto">
-  <h2 style="text-align:center;margin-bottom:20px;color:var(--c)"><i class="fa-solid fa-file-pen"></i> التقديمات الرسمية</h2>
-  <div class="fg"><label>نوع التقديم:</label><select id="atype" onchange="applyFields()"><option value="admin">تقديم إدارة السيرفر</option><option value="streamer">تقديم ستريمر (صانع محتوى)</option></select></div>
-  <form onsubmit="submitApp(event)"><div id="afields"></div><button class="sub" style="margin-top:18px"><i class="fa-solid fa-paper-plane"></i> إرسال طلب التقديم</button></form>
-</div></section>
-
-<section id="open-ticket" class="sec"><div class="card" style="max-width:700px;margin:0 auto">
-  <h2 style="text-align:center;margin-bottom:20px;color:var(--c)"><i class="fa-solid fa-headset"></i> فتح تذكرة جديدة</h2>
-  <form onsubmit="submitTicket(event)">
-    <div class="fg"><label>نوع التذكرة:</label><select id="tcat"><option>دعم فني</option><option>طلب انضمام للشرطة</option><option>طلب انضمام للمطافي</option><option>طلب انضمام للإسعاف</option><option>استفسار عام</option><option>شكوى</option></select></div>
-    <div class="fg"><label>التفاصيل:</label><textarea id="tdet" rows="4" required></textarea></div>
-    <button class="sub"><i class="fa-solid fa-paper-plane"></i> فتح التذكرة</button>
-  </form>
-</div></section>
-
-<section id="user-tickets" class="sec">
-  <h3 style="color:var(--c);margin-bottom:10px">التذاكر العامة والدعم</h3><div class="tl" id="ugen"></div>
-  <h3 style="color:var(--g);margin:30px 0 10px">تذاكر التقديمات</h3><div class="tl" id="uapp"></div>
+<section id="home" class="sec on">
+<div class="hero"><h1 id="h1">نوفا سيتي تُرحب بكم</h1><div class="type" id="type"></div>
+<div class="emb"><i></i><i></i><i></i><i></i><b></b></div></div>
+<div class="tick"><div class="trk" id="trk"></div></div>
+<div class="menu" id="menu"></div>
 </section>
 
-<section id="server-status" class="sec"><div class="card" style="max-width:700px;margin:0 auto;text-align:center">
-  <h2 style="color:var(--c);margin-bottom:20px"><i class="fa-solid fa-server"></i> حالة السيرفر</h2>
-  <div id="sdisp" style="min-height:160px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px"></div>
-  <button class="sub" style="max-width:250px;margin:15px auto 0" onclick="checkStatus(true)"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
-  <p style="color:rgba(255,255,255,.35);font-size:.8rem;margin-top:12px">يتم التحديث تلقائياً كل 30 ثانية</p>
-</div></section>
+<section id="status" class="sec"><div id="stbox"></div></section>
 
-<section id="admin-panel" class="sec">
-  <h2 style="color:var(--pk);margin-bottom:20px"><i class="fa-solid fa-user-shield"></i> لوحة التحكم العامة</h2>
-  <div class="card">
-    <h3 style="color:var(--c);margin-bottom:15px"><i class="fa-solid fa-robot"></i> إرسال عبر البوت (Webhook)</h3>
-    <div class="fg"><label>رابط الـ Webhook:</label><input id="whu" type="url" placeholder="https://discord.com/api/webhooks/..."></div>
-    <div class="fg"><label>العنوان:</label><input id="wht"></div>
-    <div class="fg"><label>المحتوى:</label><textarea id="whc" rows="3"></textarea></div>
-    <button class="sub" onclick="sendHook()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
-  </div>
-  <div class="card">
-    <h3 style="color:var(--c);margin-bottom:15px"><i class="fa-solid fa-server"></i> التحكم في حالة السيرفر</h3>
-    <div class="fg"><label>الوضع:</label><select id="sm"><option value="auto">قراءة حقيقية (تلقائي)</option><option value="maint">صيانة</option><option value="open">مفتوح (يدوي)</option><option value="closed">مقفول (يدوي)</option></select></div>
-    <div class="fg"><label>رسالة تظهر للاعبين (اختياري):</label><input id="smsg" placeholder="مثال: صيانة لمدة ساعة"></div>
-    <button class="sub" onclick="saveSM()"><i class="fa-solid fa-floppy-disk"></i> حفظ حالة السيرفر</button>
-  </div>
-  <div class="card"><h3 style="color:var(--c);margin-bottom:15px">📤 رفع شروحات</h3><div class="fg"><label>العنوان:</label><input id="ttl2"></div><div class="fg"><label>الملف:</label><input id="tfile" type="file"></div><div style="height:6px;background:rgba(255,255,255,.1);border-radius:9px;margin-bottom:12px;overflow:hidden"><div id="tprog" style="height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--pk));transition:width .2s"></div></div><button class="sub" onclick="upTut()">⬆️ رفع ونشر للجميع</button></div>
-  <div class="card"><h3 style="color:var(--c);margin-bottom:15px"><i class="fa-brands fa-discord"></i> سجل تسجيل الدخول بالديسكورد (<span id="lgc">0</span>)</h3><input class="rs" id="lgs" style="margin:0 0 14px" placeholder="🔎 ابحث بالاسم أو الـ ID..." oninput="renderLogins()"><div class="tl" id="lgn" style="max-height:480px;overflow-y:auto"></div></div>
-  <div class="split">
-    <div class="col"><h3><i class="fa-solid fa-id-card"></i> تذاكر التقديمات</h3><div class="tl" id="aapp"></div></div>
-    <div class="col"><h3><i class="fa-solid fa-comments"></i> التذاكر العامة والدعم</h3><div class="tl" id="agen"></div></div>
-  </div>
-  <div class="card">
-    <h3 style="color:var(--c);margin-bottom:15px"><i class="fa-solid fa-pen-to-square"></i> تعديل محتوى الموقع</h3>
-    <label style="color:var(--c);font-weight:700">القوانين: عدّل أي قسم أو احذفه أو أضف جديد (كل سطر في الصندوق = قاعدة)</label><div id="redit" style="margin-top:10px"></div><button class="sub" style="max-width:220px;margin:0 0 14px" onclick="addSec()">➕ قسم جديد</button>
-    <div class="fg"><label>المعلومات العامة:</label><textarea id="ei" rows="4"></textarea></div><button class="sub" style="max-width:260px;margin:0 0 14px;background:rgba(255,255,255,.1)" onclick="$('ei').value=INFO">↩️ استرجاع النص الافتراضي</button>
-    <button class="sub" onclick="saveSite()"><i class="fa-solid fa-floppy-disk"></i> حفظ ونشر</button>
-  </div>
-</section>
+<section id="streams" class="sec"><div class="card"><h2><i class="fa-solid fa-tower-broadcast"></i> البثوث</h2>
+<p style="margin-top:6px;font-weight:700;color:var(--c)">اضغط على أي بث لفتحه</p><div class="sg" id="sg"></div></div></section>
 
-<section id="admin-logs" class="sec"><h2 style="color:var(--g);margin-bottom:20px"><i class="fa-solid fa-box-archive"></i> سجل البيانات والأرشيف</h2><div class="tl" id="logs"></div></section>
+<section id="apply" class="sec"><div class="card" style="max-width:760px;margin:0 auto" id="apbox"></div></section>
+
+<section id="admin" class="sec"></section>
 </main>
 
-<footer><div style="color:rgba(255,255,255,.4);font-size:.85rem">جميع الحقوق محفوظة © 2026 Nova City RP</div><div style="font-weight:800;margin-top:5px">Powered by Team NV</div><a href="#" class="tl2" onclick="openTerms();return false">الشروط والأحكام</a></footer>
+<footer><p>جميع الحقوق محفوظة NV@2026</p><b>Powered by Team NV</b><a href="#" onclick="nv.terms();return false">الشروط والأحكام</a></footer>
 
 <script>
-const $=id=>document.getElementById(id);
+/* ===================== أساسيات ===================== */
+const $=i=>document.getElementById(i),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const CFG={ADDR:"Nova_city-4z7y.aternos.me",PORT:64759,DYN:"barfish.aternos.host"};
-const L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||d)}catch(e){return JSON.parse(d)}};
-const RULES=`『 ① نظام الشخصيات 👤 』
-🔹 يحق للاعب امتلاك شخصيتين فقط، ولا يمكنه إنشاء شخصية إضافية.
-🔹 يمنع منعًا باتًا نقل المعلومات أو الأموال أو السيارات أو الممتلكات بين الشخصيتين.
-🔸 مثال: ممنوع استخدام معلومات شخصية الشرطي لمساعدة شخصيتك المجرمة.
-🔹 يجب تقمص الشخصية بالكامل، ويمنع الخروج من الشخصية OOC.
-『 ② الاحترام والآداب 🤝 』
-🚫 يمنع التنمر أو الإساءة اللفظية أو السلوكية لأي شخص.
-🔹 يجب احترام جميع اللاعبين والإدارة دون استثناء.
-『 ③ الحقد والانتقام ☠️ 』
-🚫 يمنع الحقد على أي شخص بسبب سيناريو سابق.
-🔹 بعد الإسقاط يجب نسيان آخر 10 دقائق من الأحداث، ويمكن تذكرها بعد 15 دقيقة.
-🚫 يمنع استهداف شخص بالكراكتر الثاني بسبب شيء حدث مع الكراكتر الأول.
-『 ④ المناطق المحظورة 🏥⚖️ 』
-🚫 يمنع الضرب أو الإسقاط داخل: المستشفى - المحكمة - المطافي - الورش - الفندق - قسم الشرطة.
-🔹 يستثنى وجود سيناريو RP قائم يسمح بالقتال. الضرب بالخطأ غير مقصود لا يعتبر مخالفة.
-『 ⑤ الهجوم على قسم الشرطة 🚔 』
-🔹 يجب ألا يقل عدد المجرمين عن 3 أشخاص.
-🚫 يمنع أخذ سيارات الشرطة أو الطائرات، ويمنع استخدام القنابل والمتفجرات ضد القسم.
-『 ⑥ الإسقاط والتفتيش 🔍 』
-🔹 لا يسمح بالتفتيش إلا مع عداوة ثانية أو ثالثة أو مفتوحة.
-📹 إن أخذ منك شخص شيئًا بعد الإسقاط بدون عداوة، توجه للإدارة ومعك Video Clip كامل.
-『 ⑦ تفتيش الشرطة 👮‍♂️ 』
-🚫 لا يحق التفتيش لمجرد مخالفة مرورية عادية (سرعة أو إشارة).
-✅ يسمح بالتفتيش عند: رؤية سلاح أو مخدرات - هروب بدون سبب - توتر شديد غير مبرر - تطابق المواصفات مع بلاغ - تفتيش وقائي.
-🔹 يقتصر التفتيش على الأسلحة والأدوات الإجرامية فقط، ولا يحق أخذ أي شيء آخر.
-🚫 الرشوة ممنوعة على الشرطة والقاضي.
-🔹 يحق حجز السيارة المستخدمة في نشاط إجرامي بحد أقصى 5 أيام داخل المدينة.
-『 ⑧ العداوة والسرقة والخطف ⚔️ 』
-🚫 يمنع الدخول في أي سيناريو بدون معرفة RP لا تقل عن يومين.
-🚫 يمنع طلب التاكسي أو الإسعاف بهدف الخطف أو القتل أو السرقة.
-🔹 عند رفع سلاح عليك يجب الاستسلام ومجاراة السيناريو حتى نهايته.
-🚫 يمنع تكوين عداوة بسبب مشادة كلامية أو حادث سيارة بسيط.
-🚫 يمنع الخطف في مكان عام أو مزدحم أو في المستشفى والحجز والأماكن الخدمية.
-🚫 يمنع أخذ رهائن من المعارف أو الأصدقاء أو أفراد العصابة.
-🚫 Random Robbery - ممنوع سرقة شخص غير موجود أو والشرطة غير موجودة.
-『 💰 نظام السرقات 』
-🔹 البقالة: 1 شرطي / 1 مجرم - المنزل: 2 / 2 - البنك: 3 شرطة / 2 مجرمين.
-🔹 كل زيادة مجرم واحد = زيادة شرطيين اثنين.
-🚫 يمنع Car Swap و Combat Storing، ولا أكثر من مركبتين للهروب إلا في السرقات الكبيرة.
-⚠️ يمنع بدء إطلاق النار مباشرة، ويجب التصعيد التدريجي وإعطاء الشرطة فرصة للتفاوض.
-『 🤝 التفاوض 』
-🔹 رهينة = طلب، رهينتان = طلبان. 💵 الطلب المالي المعتمد 15,000$ لكل رهينة.
-🚫 يمنع طلب عتاد أو أسلحة من الشرطة.
-『 🚨 فتح العدد للشرطة 』
-🔹 بدون قيود عند: التعدي على الزي الرسمي - دهس الشرطة - مطاردة بإطلاق نار - إطلاق النار على الشرطة.
-『 🏢 تكسير الممتلكات 』
-🚫 يمنع تكسير أي شيء داخل المدينة، ويسمح بالخطأ بالسيارة مع دفع الغرامة، ويسمح في الجبال عند تجميع الموارد.
-『 💼 الوظائف والرواتب 』
-🔹 الحد الأقصى 3 وظائف. 🚫 لا راتب بدون عمل فعلي. 🗓️ كل 10 أيام = شهر.
-『 🎮 قوانين الرول بلاي الأساسية 』
-🚫 MG: استخدام معلومات من خارج اللعبة.
-🚫 RDM: القتل بدون سبب RP. 🚫 VDM: الدهس بدون سبب.
-🚫 PG: أفعال غير منطقية أو إجبار لاعب على نتيجة.
-🔹 Fear RP: تصرف بخوف منطقي عند تهديد سلاح.
-🚫 NLR: ممنوع تذكر ما قبل الإسقاط أو العودة لنفس الحالة.
-🚫 Combat Logging - Bunny Hopping - Cop Baiting - Stream Sniping - AFK Abuse - Bug Abuse - Cheat/Hack.
-🚫 Third Party: التدخل في سيناريو بدون سبب. 🚫 Safe Zone: الجرائم في المناطق الآمنة.
-🚫 Real Money Trading بدون تصريح الإدارة.
-『 🎭 قاموس الـRP 』
-🔹 مايك = حنجرة - لاج = سحر أسود - ديسكورد = خارجي - الإدارة = المحكمة اللي فوق - لايف = تلفزيون - هقفل = هنام.
-『 🏙️ إدارة Nova City 👑 』
-🎭 العب RP — احترم غيرك — اصنع قصتك. الالتزام بالقوانين مسؤولية كل لاعب.`;
-
-let S={user:L('nova_user_data','null'),admin:localStorage.getItem('nova_is_admin')==='true',tickets:L('nova_general_tickets','[]'),apps:L('nova_applications','[]'),logs:L('nova_archived_logs','[]'),tuts:L('nova_tutorials_media','[]'),site:L('nova_site_content',JSON.stringify({rules:RULES,info:"🏙️ مدينة نوفا – Nova City\nمرحبًا بكم في مدينة نوفا 🌍\nمدينة نوفا هي أول مدينة عربية واقعية تنشأ داخل عالم ماينكرافت."}))};
-const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const ts=()=>new Date().toLocaleString('ar-EG');
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)}
+const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
 
-/* CURSOR, TILT, RIPPLE, SCROLL */
-
-function reveal(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');setTimeout(()=>e.target.style.transitionDelay='',1500);io.unobserve(e.target)}}),{threshold:.1});document.querySelectorAll('.rv').forEach(el=>io.observe(el))}
-function typeLoop(){const w=['أحسن سيرفر رول بلاي في مصر','عيش قصتك في مدينة نوفا','العب RP — احترم غيرك — اصنع قصتك'],e=$('type');let i=0,j=0,d=false;
-  (function s(){const t=w[i];e.textContent=t.slice(0,j);if(!d&&j<t.length){j++;setTimeout(s,70)}else if(!d){d=true;setTimeout(s,1800)}else if(j>0){j--;setTimeout(s,30)}else{d=false;i=(i+1)%w.length;setTimeout(s,300)}})()}
-function counters(){document.querySelectorAll('[data-n]').forEach(e=>{const n=+e.dataset.n;let v=0;const iv=setInterval(()=>{v+=Math.ceil(n/40);if(v>=n){v=n;clearInterval(iv)}e.textContent=v},35)})}
-
-/* NAV */
-document.querySelectorAll('.nb[data-t]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.t)));
-function switchTab(id){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('active',b.dataset.t===id));
-  const t=$(id);if(t)t.classList.add('active');scrollTo({top:0,behavior:'smooth'});
-  ({'user-tickets':renderUser,'admin-panel':renderAdmin,'admin-logs':renderLogs,'server-status':()=>checkStatus()})[id]?.();reveal()}
-
-/* CONTENT */
-function parseRules(t){const s=[];t.split('\n').forEach(l=>{l=l.trim();if(!l)return;if(l.startsWith('『'))s.push({t:l.replace(/[『』]/g,'').trim(),p:[]});else if(s.length)s[s.length-1].p.push(l)});return s}
-function renderRules(){const secs=parseRules(S.site.rules);
-$('rules-box').innerHTML=`<h2>📜 قوانين نوفا سيتي الرسمية</h2><p style="color:#ffb3b3;margin-top:8px;font-weight:700">⚠️ يجب على جميع اللاعبين قراءة القوانين والالتزام بها. المخالفة تعرضك للعقوبة الإدارية.</p><input class="rs" placeholder="🔎 ابحث في القوانين..." oninput="filterRules(this.value)"><div class="rgrid">${secs.map((s,i)=>`<div class="rc rv" style="transition-delay:${(i%3)*.12}s"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${esc(s.t)}</h3>${s.p.map((p,j)=>`<p style="--i:${j}" class="${p.startsWith('🚫')?'no':p.startsWith('🔸')?'ex':''}">${esc(p)}</p>`).join('')}</div>`).join('')}</div>`;
-$('info-box').innerHTML=`<h2>ℹ️ معلومات عامة</h2><p style="white-space:pre-line;margin-top:15px;font-size:1.05rem;line-height:1.9">${esc(S.site.info)}</p>`;$('ei').value=S.site.info;buildEditor();reveal()}
-function filterRules(v){document.querySelectorAll('.rc').forEach(c=>c.style.display=c.textContent.includes(v.trim())?'':'none')}
-const edRow=(t,p)=>`<div class="ed"><div style="display:flex;gap:8px"><input class="et" value="${esc(t)}" placeholder="عنوان القسم"><button class="mini" style="background:var(--no);white-space:nowrap;height:40px" onclick="this.closest('.ed').remove()">🗑 حذف</button></div><textarea class="ep" rows="4">${esc(p)}</textarea></div>`;
-function buildEditor(){$('redit').innerHTML=parseRules(S.site.rules).map(s=>edRow(s.t,s.p.join('\n'))).join('')}
-function addSec(){$('redit').insertAdjacentHTML('afterbegin',edRow('عنوان جديد 🆕',''))}
-function edText(){return [...document.querySelectorAll('#redit .ed')].map(e=>`『 ${e.querySelector('.et').value.trim()} 』\n${e.querySelector('.ep').value.trim()}`).join('\n')}
-const TERMS=[['قبول الشروط','دخولك للموقع أو سيرفر Nova City RP أو انضمامك لمجتمعنا على ديسكورد يعني موافقتك الكاملة على هذه الشروط وعلى قوانين المدينة الرسمية. إن لم توافق، يرجى التوقف عن استخدام الموقع والسيرفر.'],['الأهلية والعمر','يجب ألا يقل عمر المستخدم عن 13 عاماً. القاصرون مسؤولية أولياء أمورهم، وللإدارة الحق في طلب إثبات العمر عند الحاجة، وإيقاف أي حساب مخالف.'],['الحسابات وتسجيل الدخول','يتم تسجيل الدخول عبر Discord أو Google للتعرف عليك داخل الموقع فقط. نحن نقرأ اسمك وصورتك ومعرف حسابك، ولا نطلب كلمة مرورك ولا نقرأ رسائلك. أنت مسؤول عن أي نشاط يتم من حسابك.'],['السلوك العام','يمنع السب والتنمر والتمييز والتهديد والتحرش، داخل اللعبة وخارجها. احترام اللاعبين والإدارة التزام دائم، وأي إساءة تعرضك للعقوبة مهما كان مكانها.'],['قوانين الرول بلاي','قوانين المدينة المنشورة في صفحة القوانين جزء لا يتجزأ من هذه الشروط. الجهل بالقانون ليس عذراً، وقرارات الإدارة في المخالفات نهائية بعد دراسة الأدلة.'],['التذاكر والتقديمات','المعلومات التي ترسلها في التذاكر وطلبات التقديم يجب أن تكون صحيحة. التقديم الكاذب أو المتكرر بغرض الإزعاج يؤدي للرفض أو الحظر. قد تتم أرشفة التذاكر المغلقة للرجوع إليها عند الحاجة.'],['العقوبات','تتدرج العقوبات بحسب المخالفة: تنبيه، ثم تحذير، ثم إيقاف مؤقت، ثم حظر نهائي. الغش والاختراق واستغلال الثغرات وبيع الحسابات أو الأموال بمقابل حقيقي تستوجب الحظر الفوري.'],['الأموال والممتلكات داخل اللعبة','الأموال والسيارات والممتلكات داخل اللعبة افتراضية بالكامل ولا قيمة مادية لها، ولا يحق المطالبة بها عند الحظر أو إعادة ضبط السيرفر أو حدوث أعطال.'],['الخصوصية وحماية البيانات','نحفظ الحد الأدنى من بيانات الدخول لتشغيل خدمات الموقع، ولا نبيعها ولا نشاركها مع أي طرف خارجي. يمكنك طلب حذف بياناتك عبر فتح تذكرة دعم فني.'],['الملكية والمحتوى','تصميم الموقع وشعار Nova City وقوانينه مملوكة لإدارة المدينة. المحتوى الذي ترفعه يبقى ملكك، لكنك تمنحنا حق عرضه ضمن المجتمع. Nova City غير تابع لـ Mojang أو Microsoft.'],['التوقف والصيانة','قد يتوقف السيرفر أو الموقع مؤقتاً للصيانة أو التحديث أو لأسباب خارجة عن إرادتنا، ولا تضمن الإدارة توفر الخدمة على مدار الساعة.'],['تعديل الشروط','يحق للإدارة تعديل هذه الشروط في أي وقت، واستمرارك في استخدام الموقع بعد التعديل يعني موافقتك عليه. للاستفسار افتح تذكرة أو تواصل معنا عبر ديسكورد.']];
-function openTerms(){$('tbody').innerHTML=TERMS.map((t,i)=>`<div class="ti" style="--i:${i}"><h4>${i+1}. ${t[0]}</h4><p>${t[1]}</p></div>`).join('');$('tbody').scrollTop=0;$('tm').classList.add('on')}
-function addTut(){if(!S.admin)return;const t=$('ttl').value.trim(),u=$('turl').value.trim();if(!t||!u)return toast('املأ كل الحقول');S.tuts.push({id:Date.now(),title:t,url:u,v:/\.mp4|youtube|video/.test(u)});save('nova_tutorials_media',S.tuts);$('ttl').value=$('turl').value='';renderTuts();toast('✅ تم النشر')}
-function cb(){}
-
-/* FORMS */
-function applyFields(){$('afields').innerHTML=$('atype').value==='admin'?`<div class="fg"><label>الاسم بالكامل:</label><input id="a1" required></div><div class="fg"><label>العمر:</label><input id="a2" type="number" required></div><div class="fg"><label>الخبرات الإدارية:</label><textarea id="a3" rows="3" required></textarea></div>`:`<div class="fg"><label>الاسم:</label><input id="a1" required></div><div class="fg"><label>رابط القناة:</label><input id="a2" type="url" required></div><div class="fg"><label>عدد المتابعين:</label><input id="a3" type="number" required></div>`}
-const chat=t=>(t.replies||[]).map(r=>`<div class="m ${r.isAdmin?'admin':'user'}"><b>${esc(r.sender)}:</b> ${esc(r.text)}</div>`).join('')||'<p style="color:#777;font-size:.8rem">لا توجد ردود بعد.</p>';
-const badge=s=>s==='مقبول'?'s-a':s==='مرفوض'?'s-r':'s-p';
-const ans=a=>(a.answers||[]).map(n=>`<p style="font-size:.85rem"><b>${esc(n.q)}:</b> ${esc(n.a)}</p>`).join('');
-function renderUser(){const mt=S.user?S.tickets.filter(t=>t.userId===S.user.id):[],ma=S.user?S.apps.filter(a=>a.userId===S.user.id):[];
-  $('ugen').innerHTML=mt.length?mt.map(t=>`<div class="tk"><div class="th"><b style="color:var(--c)">${esc(t.category)} (${t.id})</b><span class="sb s-p">${esc(t.status)}</span></div><p style="font-size:.9rem;margin-bottom:8px">${esc(t.details)}</p><div class="chat">${chat(t)}</div><div class="rep"><input id="user-reply-${t.id}" placeholder="اكتب ردك..."><button onclick="reply('${t.id}',false)">إرسال</button></div></div>`).join(''):'<p style="color:#aaa">سجّل الدخول بالديسكورد لعرض تذاكرك.</p>';
-  $('uapp').innerHTML=ma.length?ma.map(a=>`<div class="tk"><div class="th"><b style="color:var(--g)">${esc(a.type)} (${a.id})</b><span class="sb ${badge(a.status)}">${esc(a.status)}</span></div>${ans(a)}</div>`).join(''):'<p style="color:#aaa">لا توجد تقديمات.</p>'}
-function renderAdmin(){if(!S.admin)return;
-  $('aapp').innerHTML=S.apps.length?S.apps.map(a=>`<div class="tk"><div class="th"><b style="color:var(--g)">${esc(a.type)} - ${esc(a.applicantName)}</b><span class="sb ${badge(a.status)}">${esc(a.status)}</span></div>${ans(a)}<div style="margin-top:10px"><button class="mini" style="background:#2ecc71" onclick="setStatus('${a.id}','مقبول')">قبول</button><button class="mini" style="background:#e74c3c" onclick="setStatus('${a.id}','مرفوض')">رفض</button></div><button class="close" onclick="archive('${a.id}','app')">🔒 إغلاق وأرشفة</button></div>`).join(''):'<p style="color:#aaa">لا توجد تقديمات.</p>';
-  $('agen').innerHTML=S.tickets.length?S.tickets.map(t=>`<div class="tk"><div class="th"><b style="color:var(--c)">${esc(t.category)} (${t.id})</b><span class="sb s-p">${esc(t.status)}</span></div><p style="font-size:.88rem">${esc(t.username)} (ID: ${esc(t.userId)})</p><p style="font-size:.88rem;margin:6px 0">${esc(t.details)}</p><div class="chat">${chat(t)}</div><div class="rep"><input id="admin-reply-${t.id}" placeholder="رد كـ أدمن..."><button onclick="reply('${t.id}',true)">رد</button></div><button class="close" onclick="archive('${t.id}','general')">🔒 إغلاق وأرشفة</button></div>`).join(''):'<p style="color:#aaa">لا توجد تذاكر.</p>'}
-function renderLogs(){if(!S.admin)return;$('logs').innerHTML=S.logs.length?S.logs.map(l=>`<div class="tk" style="border-color:var(--g)"><div class="th"><b style="color:var(--g)">${esc(l.logType)}: ${esc(l.category||l.type)} (${l.id})</b><span class="sb s-r">مؤرشفة</span></div><div style="font-size:.85rem;color:#ccc;margin-bottom:8px"><p>الفتح: ${esc(l.exactTimestamp)}</p><p>الإغلاق: <span style="color:var(--pk)">${esc(l.closedAtExact)}</span></p><p>صاحب التذكرة: ${esc(l.username)} (ID: ${esc(l.userId)})</p></div>${l.logType==='تذكرة عامة'?`<p>${esc(l.details)}</p><div class="chat">${chat(l)}</div>`:ans(l)}</div>`).join(''):'<p style="color:#aaa">لا توجد سجلات.</p>'}
-async function sendHook(){if(!S.admin)return;const u=$('whu').value.trim(),t=$('wht').value.trim(),c=$('whc').value.trim();if(!u||!t||!c)return toast('أدخل كل البيانات');
-  try{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'Nova City System',embeds:[{title:'📢 '+t,description:c,color:9196031,footer:{text:'صادرة من موقع نوفا سيتي'},timestamp:new Date().toISOString()}]})});toast(r.ok?'✅ تم الإرسال':'❌ خطأ في الإرسال')}catch(e){toast('❌ فشل الاتصال')}}
-
-addEventListener('DOMContentLoaded',()=>{intro();bg();fx();renderRules();renderTuts();applyFields();cb();if(S.admin)adminUI();authUI();setInterval(checkStatus,30000);reveal()});
-</script>
-<script>
-/* ===== SUPABASE ===== */
+/* ===================== الإعدادات ===================== */
 const SB_URL="https://dghgkcicuziiuipqlhjb.supabase.co",SB_KEY="sb_publishable_j1xp8xPaV7xW593XDgUkVg_js3deQYM";
 const DISCORD_CLIENT_ID="1525287436198875266";
 const ADMIN_HASH="2fb7a4d6c4aaad9ebf705fec96b646916a3feaf252920bc6e261b3981d92edc0";
-async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
-const INFO=`🏙️ مدينة نوفا – Nova City
-مرحبًا بكم في مدينة نوفا 🌍
-مدينة نوفا هي أول مدينة عربية واقعية تنشأ داخل عالم ماينكرافت، حيث تقدم تجربة حياة واقعية ممتعة وتفاعلية للاعبين.
-✨ تم تصميم المدينة لتناسب جميع اللاعبين سواء على النسخة المكركة أو الأصلية، وتدعم  Java Edition .
-🎮 استمتع بالعيش داخل المدينة، تكوين صداقات، المشاركة في الفعاليات، وبناء حياتك الخاصة داخل عالم نوفا.
-⚠️ نتمنى لكم تجربة ممتعة وحظًا موفقًا داخل المدينة!`;
-const SB_OK=!!(SB_URL&&SB_KEY),sb=SB_OK?supabase.createClient(SB_URL,SB_KEY):null;
-localStorage.removeItem('nova_is_admin');localStorage.removeItem('nova_user_data');
-Object.assign(S,{user:null,admin:false,tickets:[],apps:[],logs:[],tuts:[],site:{rules:RULES,info:INFO,mode:'auto',msg:''}});
-TERMS[2][1]='يتم تسجيل الدخول عبر حساب Discord فقط. نقرأ اسمك وصورتك ومعرّفك فقط، ولا نطلب كلمة مرورك ولا نصل لرسائلك. أنت مسؤول عن أي نشاط يتم من حسابك.';
-const ts=()=>new Date().toLocaleString('ar-EG'),need=()=>{if(!SB_OK){toast('⚠️ ضع إعدادات Supabase في الكود أولاً');return true}return false};
-const rows=async(t,f)=>{let q=sb.from(t).select('*');if(f)q=f(q);return(await q).data||[]},srt=a=>a.map(r=>r.data).sort((a,b)=>(a.ts||0)-(b.ts||0));
-function refresh(){const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('.sec'))return;({'user-tickets':renderUser,'admin-panel':renderAdmin,'admin-logs':renderLogs})[document.querySelector('.sec.active')?.id]?.()}
-function buildEditor(){if(document.activeElement?.closest('#redit'))return;$('redit').innerHTML=parseRules(S.site.rules).map(x=>edRow(x.t,x.p.join('\n'))).join('')}
-const _ra=renderAdmin;renderAdmin=function(){_ra();$('sm').value=S.site.mode||'auto';$('smsg').value=S.site.msg||''};
-async function loadAll(){if(!SB_OK)return;
- const s=(await sb.from('site').select('*').eq('id','main').maybeSingle()).data;if(s)['rules','info','mode','msg'].forEach(k=>{if(s[k]!=null)S.site[k]=s[k]});
- S.tuts=await rows('tuts',q=>q.order('t',{ascending:false}));
- if(S.user||S.admin){S.tickets=srt(await rows('tickets'));S.apps=srt(await rows('apps'));S.logs=S.admin?srt(await rows('logs')):[]}
- else{S.tickets=[];S.apps=[];S.logs=[]}
- const a=document.activeElement;if(!(a&&a.closest&&a.closest('#admin-panel')))renderRules();renderTuts();checkStatus();refresh()}
-async function initAuth(){
- const p=new URLSearchParams(location.hash.slice(1));
- if(p.get('access_token')){
-  history.replaceState(null,'',location.pathname+location.search);
-  const tk=p.get('access_token'),ex=Date.now()+(+p.get('expires_in')||604800)*1000;
-  try{const r=await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+tk}});if(!r.ok)throw 0;const d=await r.json();
-   localStorage.setItem('nova_dc',JSON.stringify({id:d.id,did:d.id,username:d.global_name||d.username,avatar:d.avatar?`https://cdn.discordapp.com/avatars/${d.id}/${d.avatar}.png?size=128`:'',ex}));toast('✅ تم تسجيل الدخول بديسكورد')}
-  catch(e){toast('❌ فشل تسجيل الدخول بديسكورد')}
- }else if(p.get('error')){history.replaceState(null,'',location.pathname+location.search);toast('تم إلغاء تسجيل الدخول')}
- let u=null;try{u=JSON.parse(localStorage.getItem('nova_dc')||'null')}catch(e){}
- if(u&&u.ex<Date.now()){localStorage.removeItem('nova_dc');u=null}
- if(sessionStorage.getItem('nova_admin')==='1'){S.admin=true;S.user=null;adminUI()}else{S.admin=false;S.user=u}
- authUI()}
-async function startSB(){await initAuth();if(!SB_OK)return;
- let rt;sb.channel('nova').on('postgres_changes',{event:'*',schema:'public'},()=>{clearTimeout(rt);rt=setTimeout(loadAll,400)}).subscribe();loadAll()}
-addEventListener('DOMContentLoaded',startSB);
-function discordLogin(){const ru=location.origin+location.pathname;location.href='https://discord.com/oauth2/authorize?client_id='+DISCORD_CLIENT_ID+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(ru)}
-function openLogin(){discordLogin()}
-function logout(){localStorage.removeItem('nova_dc');sessionStorage.removeItem('nova_admin');S.user=null;S.admin=false;adminOff();authUI();switchTab('home');loadAll()}
-function authUI(){$('auth').innerHTML=S.admin?`<div class="ubadge"><b>👑 الأدمن</b><button class="lo" onclick="logout()">خروج</button></div>`:S.user?`<div class="ubadge"><img src="${esc(S.user.avatar)}" referrerpolicy="no-referrer" alt=""><b>${esc(S.user.username)}</b><button class="lo" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button></div>`:`<button class="btn-auth" onclick="discordLogin()"><i class="fa-brands fa-discord"></i><span>تسجيل الدخول بـ Discord</span></button>`}
-async function verifyAdmin(){if(await sha($('apw').value)!==ADMIN_HASH)return toast('❌ كلمة المرور غير صحيحة');sessionStorage.setItem('nova_admin','1');S.admin=true;S.user=null;authUI();adminUI();loadAll();$('apm').classList.remove('on');$('apw').value='';$('aintro').classList.add('on');setTimeout(()=>{$('aintro').classList.remove('on');switchTab('admin-panel')},2400)}
-function adminUI(){$('alb').style.display='none';$('apb').style.display=$('agb').style.display='flex'}
-function adminOff(){$('alb').style.display='flex';$('apb').style.display=$('agb').style.display='none'}
-async function submitTicket(e){e.preventDefault();if(need())return;if(!S.user)return toast('سجّل الدخول بـ Discord أولاً');const id='TICK-'+Date.now().toString().slice(-6),o={id,category:$('tcat').value,userId:S.user.id,username:S.user.username,details:$('tdet').value,status:'مفتوحة',exactTimestamp:ts(),ts:Date.now(),replies:[]};
- const{error}=await sb.from('tickets').insert({id,user_id:S.user.id,ts:o.ts,data:o});if(error)return toast('❌ فشل الإرسال');$('tdet').value='';toast('✅ تم فتح التذكرة');await loadAll();switchTab('user-tickets')}
-async function submitApp(e){e.preventDefault();if(need())return;if(!S.user)return toast('سجّل الدخول بـ Discord أولاً');const ad=$('atype').value==='admin',v=[1,2,3].map(i=>$('a'+i).value),q=ad?['الاسم','العمر','الخبرات']:['الاسم','الرابط','المتابعين'],id='APP-'+Date.now().toString().slice(-6),o={id,type:ad?'تقديم إدارة':'تقديم ستريمر',userId:S.user.id,username:S.user.username,applicantName:v[0],status:'قيد المراجعة',exactTimestamp:ts(),ts:Date.now(),answers:q.map((k,i)=>({q:k,a:v[i]}))};
- const{error}=await sb.from('apps').insert({id,user_id:S.user.id,ts:o.ts,data:o});if(error)return toast('❌ فشل الإرسال');toast('✅ تم إرسال التقديم');await loadAll();switchTab('user-tickets')}
-async function reply(id,adm){const i=$((adm?'admin-reply-':'user-reply-')+id),v=i.value.trim(),t=S.tickets.find(x=>x.id===id);if(!v||!t)return;t.replies=[...(t.replies||[]),{sender:adm?'الإدارة (Admin)':t.username,isAdmin:adm,text:v}];const{error}=await sb.from('tickets').update({data:t}).eq('id',id);if(error)return toast('❌ فشل الإرسال');i.value='';adm?renderAdmin():renderUser()}
-async function setStatus(id,x){if(!S.admin)return;const a=S.apps.find(z=>z.id===id);if(!a)return;a.status=x;await sb.from('apps').update({data:a}).eq('id',id);renderAdmin()}
-async function archive(id,type){if(!S.admin)return;const col=type==='general'?'tickets':'apps',o=S[col].find(x=>x.id===id);if(!o)return;const l={...o,closedAtExact:ts(),closedBy:'الإدارة العليا',logType:type==='general'?'تذكرة عامة':'تذكرة تقديم'};
- await sb.from('logs').insert({id,user_id:o.userId,ts:Date.now(),data:l});await sb.from(col).delete().eq('id',id);toast('🔒 تمت الأرشفة');await loadAll()}
-async function saveSite(){if(!S.admin)return;const{error}=await sb.from('site').upsert({id:'main',rules:edText(),info:$('ei').value});toast(error?'❌ فشل الحفظ':'✅ تم الحفظ ويظهر للجميع الآن')}
-async function saveSM(){if(!S.admin)return;const{error}=await sb.from('site').upsert({id:'main',mode:$('sm').value,msg:$('smsg').value});toast(error?'❌ فشل الحفظ':'✅ تم حفظ حالة السيرفر للجميع')}
-async function delTut(id){if(!S.admin)return;const m=S.tuts.find(x=>x.id===id);if(m?.path)await sb.storage.from('tutorials').remove([m.path]);await sb.from('tuts').delete().eq('id',id)}
+const CFG={ADDR:"Nova_city-4z7y.aternos.me",PORT:64759,DYN:"barfish.aternos.host"};
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const kvGet=async id=>{try{const r=await sb.from('kv').select('data').eq('id',id).maybeSingle();return r.data?r.data.data:null}catch(e){return null}};
+const kvSet=async(id,d)=>{const r=await sb.from('kv').upsert({id,data:d});if(r.error){toast('❌ '+r.error.message);return false}return true};
 
-</script>
-<script>
-/* ===== NOVA CITY UPGRADE: الدخلة + حالة السيرفر + سجل الدخول + رفع الملفات ===== */
-(function(){
-/* ---------- إعدادات ---------- */
-const INTRO={
-  NAME:11,        // ثواني اسم السيرفر
-  CREDIT:4,       // مدة كريدت dis dev في آخر الدخلة
-  SKIP_CREDIT:5   // مدة كريدت dis dev لو حد ضغط تخطي
-};
+const DQ=[['اسمك الحقيقي','t',1],['عمرك الحقيقي','g',1],['اسمك داخل اللعبة','t',1],['اسمك داخل السيرفر','t',1],['لماذا اخترت سيرفرنا؟ (اختياري)','a',0],['هل لديك خبرة في سيرفرات رول بلاي؟','a',1],['ما هو الـ RDM؟ اشرحه بكلماتك','a',1],['ما هو الـ Fail RP؟ أعطِ مثالاً','a',1],['ما هو الـ Meta Gaming؟ أعطِ مثالاً','a',1],['ما هو الـ Power Gaming؟ أعطِ مثالاً','a',1],['لو رأيت لاعباً يخالف القوانين، ماذا تفعل؟','a',1],['قتلك لاعب بدون سبب، كيف تتصرف؟','a',1],['كم ساعة تقدر تلعب يومياً؟','t',1],['هل قرأت القوانين كاملة؟ (نعم/لا)','t',1],['قصة شخصيتك (أقل شيء 20 حرف)','a',1]];
+let U=null,ADM=false,STT=null,LIVE=0,LV=[],ON={};
+let AP={open:true,mode:'both',discord:'https://discord.gg/7VESxXdfBM',minAge:12,qs:DQ.map(([q,t,r])=>({q,t,r}))};
+let ST=[],IC=J('nv_intro',{}),SM={mode:'auto',msg:''};
 
-const css=`
-#intro{background:#02000a;transition:opacity 1.2s}#intro.out{opacity:0;pointer-events:none}
-#ic{position:absolute;inset:0}
-.ivig{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 40%,rgba(2,0,8,.92))}
-.lb{position:absolute;left:0;width:100%;height:0;background:#000;z-index:6;transition:height 1.8s cubic-bezier(.2,.9,.2,1)}.lb.t{top:0}.lb.b{bottom:0}#intro.on .lb{height:6vh}
-.fl{position:absolute;z-index:7;pointer-events:none;opacity:.8}
-.fl.a,.fl.b{left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,#e7d6a8,transparent);transform:scaleX(0);animation:fl1 2s .4s cubic-bezier(.2,.9,.2,1) forwards}
-.fl.a{top:calc(6vh + 14px)}.fl.b{bottom:calc(6vh + 14px)}
-.fl.c,.fl.d{top:calc(6vh + 14px);bottom:calc(6vh + 14px);width:1px;background:linear-gradient(180deg,transparent,#e7d6a8,transparent);transform:scaleY(0);animation:fl1 2s .4s cubic-bezier(.2,.9,.2,1) forwards}
-.fl.c{left:14px}.fl.d{right:14px}
-@keyframes fl1{to{transform:none}}
-#iname{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8vh;direction:ltr;text-align:center;padding:0 12px;transition:opacity .9s,transform .9s}
-#iname.hide{opacity:0;transform:scale(1.1)}
-#imono{width:min(30vmin,230px);height:auto;overflow:visible;filter:drop-shadow(0 0 22px rgba(167,139,250,.75));animation:mfl 6s ease-in-out infinite}
-@keyframes mfl{50%{transform:translateY(-6px)}}
-.mp{fill:none;stroke:url(#gg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--l);stroke-dashoffset:var(--l);animation:mdr 2.6s cubic-bezier(.5,0,.2,1) forwards;animation-delay:2.4s}
-.mp.m2{animation-delay:3s}.mp.m3{stroke-width:3.4;animation-delay:3.8s}
-@keyframes mdr{to{stroke-dashoffset:0}}
-.iln{height:1px;width:0;background:linear-gradient(90deg,transparent,#e7d6a8,transparent);box-shadow:0 0 14px rgba(231,214,168,.7);animation:iln 1.8s 5s cubic-bezier(.2,.9,.2,1) forwards}
-@keyframes iln{to{width:min(72vw,760px)}}
-#itt,.cn{font-family:'Cinzel','Cairo',serif;font-weight:900}
-#itt{margin-bottom:1.4vh;white-space:nowrap;font-size:clamp(1.8rem,9.6vw,6.4rem);letter-spacing:.5em;opacity:0;filter:blur(18px);background:linear-gradient(100deg,#8a6d2f 0%,#e7d6a8 20%,#fff 32%,#e7d6a8 44%,#c4b5fd 60%,#8a6d2f 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:itr 2.8s 5s cubic-bezier(.2,.8,.2,1) forwards,shn 4.5s 7.6s linear infinite;-webkit-box-reflect:below -6px linear-gradient(transparent 55%,rgba(255,255,255,.2))}
-@keyframes itr{to{opacity:1;filter:blur(0);letter-spacing:.16em}}
-@keyframes shn{to{background-position:-300% 0}}
-#isub2{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.45em;color:#e7d6a8;font-size:clamp(.5rem,1.7vw,1rem);opacity:0;animation:iu 1.6s 8s forwards}
-#iar{font-weight:800;color:#f1ecff;font-size:clamp(1rem,2.6vw,1.6rem);opacity:0;animation:iu 1.6s 9s forwards;direction:rtl}
-@keyframes iu{from{opacity:0;filter:blur(10px);transform:translateY(16px)}to{opacity:1;filter:none;transform:none}}
-#icred{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(76,29,149,.5),rgba(3,1,10,.94) 70%);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .9s;overflow:hidden}
-#icred.on{opacity:1}
-.cring{position:absolute;width:min(78vw,560px);aspect-ratio:1;border:1px dashed rgba(167,139,250,.4);border-radius:50%;animation:spin 22s linear infinite}
-.cring.c2{width:min(58vw,410px);border-style:solid;border-color:rgba(231,214,168,.25);animation-direction:reverse;animation-duration:15s}
-.cin{position:relative;text-align:center;direction:ltr;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 14px}
-.cdi{font-size:clamp(2.4rem,7vw,3.6rem);color:#8f9bff;filter:drop-shadow(0 0 22px #5865F2);animation:float 3s ease-in-out infinite}
-.ct{font-family:'Cinzel',serif;font-weight:600;letter-spacing:.5em;color:#e7d6a8;font-size:clamp(.65rem,2.2vw,1.1rem)}
-.cl{height:1px;width:min(60vw,420px);background:linear-gradient(90deg,transparent,#e7d6a8,transparent)}
-.cn{display:flex;justify-content:center;font-size:clamp(2.2rem,10vw,5.4rem);letter-spacing:.08em;filter:drop-shadow(0 0 26px rgba(139,92,246,.7))}
-.cn span{display:inline-block;opacity:0;transform:translateY(40px) scale(1.4);filter:blur(16px);background:linear-gradient(180deg,#fff 0%,#e4dcff 40%,#e7d6a8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:ilt 1.2s cubic-bezier(.2,.9,.2,1) forwards}
-@keyframes ilt{to{opacity:1;transform:none;filter:blur(0)}}
-.cbar{width:min(260px,60vw);height:2px;background:rgba(255,255,255,.12);margin-top:18px;overflow:hidden}.cbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,transparent,#e7d6a8,#fff)}
-#icred.on .cbar i{animation:load var(--cd,5s) linear forwards}
-#ipct{position:absolute;bottom:calc(6vh + 24px);left:50%;transform:translateX(-50%);z-index:25;font-family:'Cinzel',serif;letter-spacing:.5em;color:#c4b5fd;font-size:.7rem;opacity:.8}
-#itime{position:absolute;left:0;bottom:0;width:100%;height:2px;z-index:25;background:rgba(255,255,255,.08)}#itime i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6d28d9,#e7d6a8);animation:load linear forwards}
-#skip{position:absolute;top:calc(env(safe-area-inset-top,0px) + 2.5vh);left:3vh;z-index:30;min-height:40px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 18px;border-radius:30px;font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-@media(prefers-reduced-motion:reduce){#itt{animation:none;opacity:1;filter:none;letter-spacing:.16em}}
-`;
-document.head.insertAdjacentHTML('beforeend','<style>'+css+'</style>');
+const TERMS=[
+['قبول الشروط','دخولك للموقع أو سيرفر Nova City RP يعني موافقتك الكاملة على هذه الشروط وعلى قوانين المدينة.'],
+['الأهلية والعمر','يجب ألا يقل عمر المقدّم عن 12 عاماً. للإدارة طلب إثبات العمر ورفض أي تقديم ببيانات غير صحيحة.'],
+['الحسابات','تسجيل الدخول عبر Discord فقط. نقرأ اسمك وصورتك ومعرّفك ولا نصل لرسائلك ولا نطلب كلمة مرورك.'],
+['السلوك العام','يمنع السب والتنمر والتمييز والتهديد داخل اللعبة وخارجها، والإدارة تتخذ ما تراه مناسباً.'],
+['التقديم','طلبك وإجاباتك تُحفظ وتظهر للإدارة للمراجعة. قرار القبول أو الرفض نهائي، وللإدارة فتح التقديم وإغلاقه.'],
+['العقوبات','تتدرج من تنبيه إلى تحذير إلى إيقاف إلى حظر. الغش واستغلال الثغرات يستوجبان الحظر الفوري.'],
+['البثوث','تعرض القائمة الستريمرز المعتمدين فقط، والإدارة غير مسؤولة عن محتوى القنوات الخارجية.'],
+['سجل الزيارات','لتأمين الموقع نسجّل دخول وخروج الزوار (اسم العرض ووقت الزيارة) ولا نجمع بيانات شخصية أخرى.'],
+['الأموال والممتلكات','كل ما داخل اللعبة افتراضي ولا قيمة مادية له ولا يحق المطالبة به.'],
+['تعديل الشروط','يحق للإدارة تعديل الشروط في أي وقت، واستمرارك يعني موافقتك.']];
+const PLAT={kick:['Kick','fa-brands fa-kickstarter-k','https://kick.com/'],twitch:['Twitch','fa-brands fa-twitch','https://twitch.tv/'],youtube:['YouTube','fa-brands fa-youtube','https://youtube.com/@'],tiktok:['TikTok','fa-brands fa-tiktok','https://tiktok.com/@']};
 
-$('intro').innerHTML=`<canvas id="ic"></canvas><div class="ivig"></div><div class="lb t"></div><div class="lb b"></div>
-<i class="fl a"></i><i class="fl b"></i><i class="fl c"></i><i class="fl d"></i>
-<div id="iname">
-<svg id="imono" viewBox="0 0 200 200"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c9"/><stop offset=".5" stop-color="#e7d6a8"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
-<path class="mp" style="--l:520" d="M100 10 L190 100 L100 190 L10 100 Z"/><path class="mp m2" style="--l:380" d="M100 34 L166 100 L100 166 L34 100 Z"/><path class="mp m3" style="--l:200" d="M72 128 V72 L128 128 V72"/></svg>
-<div class="iln"></div><h1 id="itt">NOVA CITY</h1><div class="iln" style="animation-delay:5.3s"></div><div id="isub2">THE FIRST REALISTIC ROLEPLAY CITY</div><div id="iar">مدينة نوفا... حيث تبدأ قصتك</div></div>
-<div id="icred"><div class="cring"></div><div class="cring c2"></div><div class="cin"><i class="fa-brands fa-discord cdi"></i><div class="ct">DIS DEV AND WEB</div><div class="cl"></div><div class="cn" id="cn"></div><div class="cbar"><i></i></div></div></div>
-<div id="ipct">000</div><button id="skip" onclick="window.skipIntro&&skipIntro()">تخطي ⏭</button><div id="itime"><i></i></div>`;
+/* ===================== تنقل ===================== */
+function go(id){$$('.sec').forEach(s=>s.classList.toggle('on',s.id===id));$$('.nb').forEach(b=>b.classList.toggle('on',b.dataset.t===id));scrollTo({top:0,behavior:'smooth'});
+ if(id==='status')stRead();if(id==='streams')loadStreams();if(id==='admin')admRender();reveal()}
+$$('.nb').forEach(b=>b.onclick=()=>go(b.dataset.t));
+function reveal(){$$('.rv:not(.in)').forEach(e=>{const r=e.getBoundingClientRect();if(r.top<innerHeight+60)e.classList.add('in')})}
+addEventListener('scroll',()=>{$('prog').style.width=scrollY/(document.documentElement.scrollHeight-innerHeight||1)*100+'%';reveal()},{passive:true});
 
-/* ارتفاع الهيدر */
-const hh=()=>document.documentElement.style.setProperty('--hh',document.querySelector('header').offsetHeight+'px');
-hh();window.ResizeObserver?new ResizeObserver(hh).observe(document.querySelector('header')):addEventListener('resize',hh);
+/* ===================== الدخول بالديسكورد ===================== */
+async function authInit(){const p=new URLSearchParams(location.hash.slice(1));
+ if(p.get('access_token')){history.replaceState(null,'',location.pathname);
+  try{const r=await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+p.get('access_token')}});if(!r.ok)throw 0;const d=await r.json();
+   localStorage.setItem('nv_dc',JSON.stringify({id:d.id,username:d.global_name||d.username,avatar:d.avatar?`https://cdn.discordapp.com/avatars/${d.id}/${d.avatar}.png?size=128`:'',ex:Date.now()+(+p.get('expires_in')||604800)*1000}));toast('✅ تم تسجيل الدخول')}
+  catch(e){toast('❌ فشل تسجيل الدخول')}}
+ const u=J('nv_dc',null);U=u&&u.ex>Date.now()?u:null;if(sessionStorage.nv_adm==='1'){ADM=true;admUI()}authUI()}
+function login(){location.href='https://discord.com/oauth2/authorize?client_id='+DISCORD_CLIENT_ID+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname)}
+function logout(){localStorage.removeItem('nv_dc');sessionStorage.removeItem('nv_adm');U=null;ADM=false;$('nbAdm').style.display='none';authUI();go('home')}
+function authUI(){$('auth').innerHTML=(U?`<div class="ub"><img src="${esc(U.avatar)}" alt="" referrerpolicy="no-referrer"><span>${esc(U.username)}</span><button onclick="logout()" title="خروج"><i class="fa-solid fa-right-from-bracket"></i></button></div>`:`<button class="dc" onclick="login()"><i class="fa-brands fa-discord"></i> تسجيل الدخول</button>`)+(ADM?'':`<button class="ib" onclick="$('am').classList.add('on')" title="الإدارة"><i class="fa-solid fa-key"></i></button>`)}
+function admUI(){$('nbAdm').style.display='flex';authUI()}
+const nv={};
+nv.adm=async()=>{if(await sha($('apw').value)!==ADMIN_HASH)return toast('❌ كلمة المرور غير صحيحة');sessionStorage.nv_adm='1';ADM=true;$('am').classList.remove('on');$('apw').value='';admUI();go('admin')};
+nv.terms=()=>{$('tbody').innerHTML=TERMS.map((t,i)=>`<div class="ti"><h4>${i+1}. ${t[0]}</h4><p>${t[1]}</p></div>`).join('');$('tm').classList.add('on')};
 
-/* مولّد المدينة (مشترك بين الدخلة والخلفية): مباني + نوافذ كل نافذة بتتحرك لوحدها */
-window.makeCity=(W,Hc,dens)=>[[44,22,98],[26,12,60],[12,6,28]].map((rgb,i)=>{const k=[.5,.75,1][i],o=document.createElement('canvas');o.width=Math.ceil(W*1.15);o.height=Math.ceil(Hc);const q=o.getContext('2d'),fill=`rgb(${rgb})`,wins=[];
- for(let b=0;b<o.width;){const w=(22+Math.random()*56)*(.8+k*.5),h=Hc*(.16+Math.random()*.55)*(.5+k*.5);q.fillStyle=fill;q.fillRect(b,Hc-h,w,h);q.fillStyle='rgba(196,181,253,.14)';q.fillRect(b,Hc-h,w,1);
-  if(Math.random()<.14){q.fillRect(b+w/2,Hc-h-14,1,14)}
-  if(i>0)for(let wy=Hc-h+7;wy<Hc-5;wy+=10)for(let wx=b+4;wx<b+w-4;wx+=8)if(Math.random()<dens)wins.push({x:wx,y:wy,p:Math.random()*6.28,s:.3+Math.random()*1.2,g:Math.random()<.2,th:Math.random()*5});
-  b+=w+Math.random()*6}
- return{o,wins,k}});
-window.drawWins=(x,ws,ox,oy,t,ramp)=>{ws.forEach(w=>{let a=Math.sin(t*w.s+w.p)>-.8?.35+.45*(.5+.5*Math.sin(t*w.s*2.3+w.p)):.05;if(ramp)a*=Math.min(1,Math.max(0,(t-w.th)*3));if(a<.02)return;x.globalAlpha=a;x.fillStyle=w.g?'#ffe2aa':'#c4b5fd';x.fillRect(ox+w.x,oy+w.y,2,3)});x.globalAlpha=1};
+/* ===================== حالة السيرفر ===================== */
+const OFFW=/offline|sleep|hibernat|stopp/,STW=/start|load|queue|prepar|saving|wait/;
+const mo=m=>Array.isArray(m&&m.clean)?m.clean.join(' '):(m&&m.clean)||'';
+const pj=r=>({on:!!r.online,v:typeof r.version==='string'?r.version:(r.version&&(r.version.name_clean||r.version.name))||'',mo:mo(r.motd),p:(r.players&&r.players.online)||0,m:(r.players&&r.players.max)||0});
+async function one(u){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),9000);try{const r=await fetch(u,{cache:'no-store',signal:ac.signal});if(!r.ok)throw 0;return pj(await r.json())}finally{clearTimeout(t)}}
+const kind=a=>{const t=((a.v||'')+' '+(a.mo||'')).toLowerCase();return !a.on||OFFW.test(t)?'off':STW.test(t)?'start':'on'};
+async function stRead(){let o={st:'unk',p:0,m:20,v:''};
+ const hs=[CFG.ADDR,CFG.DYN].map(h=>h.toLowerCase()+':'+CFG.PORT);
+ const rs=(await Promise.allSettled(hs.flatMap(h=>[one('https://api.mcstatus.io/v2/status/java/'+h),one('https://api.mcsrvstat.us/3/'+h)]))).filter(r=>r.status==='fulfilled').map(r=>({...r.value,k:kind(r.value)}));
+ if(rs.length){const top=rs.some(a=>a.k==='on')?'on':rs.some(a=>a.k==='start')?'start':'off',ref=rs.find(a=>a.k===top);o={st:top,p:ref.p,m:ref.m||20,v:(ref.v||'').replace(/[●•]/g,'').trim()}}
+ if(SM.mode==='maint')o.st='maint';else if(SM.mode==='closed')o.st='off';else if(SM.mode==='open'&&o.st!=='on')o.st='on';
+ STT=o;$('stbox').innerHTML=stHTML(o);badge()}
+function stHTML(o){const C={on:['#34d399','OPEN','مفتوح'],off:['#fb7185','OFFLINE','مقفول'],maint:['#fbbf24','MAINTENANCE','صيانة'],start:['#fbbf24','STARTING','بيشتغل الآن'],unk:['#94a3b8','UNKNOWN','تعذر القراءة']}[o.st],on=o.st==='on',m=o.m||20,f=on?Math.min(20,Math.round(o.p/m*20)):0;
+ return `<div class="stc" style="--sc:${C[0]}"><div class="stt"><span>◆ NOVA CITY</span><span>LIVE · ${new Date().toLocaleTimeString('en-GB')} Cairo</span></div><h2>حالة السيرفر</h2><div class="sts">NOVA CITY • SERVER STATUS</div>
+<div class="str"><div><div class="pill"><i></i>${C[1]} · ${C[2]}</div><div class="pl">PLAYERS · اللاعبين</div><div class="pn">${on?o.p:0}<small> / ${m}</small></div>
+<div class="bar">${Array.from({length:20},(_,i)=>`<b class="${i<f?'f':''}"></b>`).join('')}</div><div class="pc">${on?Math.min(100,Math.round(o.p/m*100)):0}%</div></div>
+<div class="comp"><i></i><i></i><b></b></div></div>
+<div class="sx"><div><small>VERSION · الإصدار</small><b>${esc(o.v||'—')}</b></div><div><small>SERVER IP · عنوان السيرفر</small><b dir="ltr">${CFG.ADDR}:${CFG.PORT}</b></div></div>
+${SM.msg?`<p class="msg">${esc(SM.msg)}</p>`:''}<div class="pw">Powered By NV Team</div></div>`}
+function badge(){const a=$('hS'),b=$('hL');if(a&&STT)a.textContent={on:'🟢 مفتوح — '+STT.p+' لاعب',off:'🔴 مقفول',maint:'🟡 صيانة',start:'🟡 بيشتغل',unk:'—'}[STT.st];if(b)b.textContent=LIVE?'🔴 '+LIVE+' مباشر الآن':'لا أحد يبث الآن'}
 
-window.intro=function(){
- const I=$('intro'),c=$('ic'),x=c.getContext('2d'),T=INTRO.NAME+INTRO.CREDIT,E=k=>1-Math.pow(1-Math.min(1,Math.max(0,k)),4),mob=innerWidth<700;
- const word=(el,s,d0)=>el.innerHTML=[...s].map((ch,i)=>ch===' '?'<span style="width:.35em"></span>':`<span style="animation-delay:${d0+i*.16}s">${ch}</span>`).join('');
- let W,H,B=[],D=[],K=[],t=0,mode='play',run=true,ended=false,pc=-1,last=performance.now();
+/* ===================== البثوث ===================== */
+const slink=s=>/^http/.test(s.u)?s.u:PLAT[s.p][2]+s.u+(s.p==='tiktok'?'/live':'');
+async function kick(slug){const u='https://kick.com/api/v2/channels/'+encodeURIComponent(slug);let j=null;
+ for(const x of [u,'https://corsproxy.io/?url='+encodeURIComponent(u)]){try{const r=await fetch(x);if(r.ok){j=await r.json();break}}catch(e){}}
+ if(!j)return null;const l=j.livestream;return{live:!!l,viewers:l?l.viewer_count:0,title:l?l.session_title:'',game:l&&l.categories&&l.categories[0]?l.categories[0].name:'',thumb:l&&l.thumbnail?l.thumbnail.url:'',avatar:(j.user&&j.user.profile_pic)||''}}
+const scard=s=>`<a class="sc${s.live?'':' off'}" href="${esc(slink(s))}" target="_blank" rel="noopener"><div class="th" style="background-image:url('${esc(s.thumb||'')}')">${s.live?'<span class="lv"><i></i>LIVE</span>':''}${s.viewers?`<span class="vw">${s.viewers} <i class="fa-solid fa-user"></i></span>`:''}</div>
+<div class="si">${s.avatar?`<img src="${esc(s.avatar)}" alt="" referrerpolicy="no-referrer">`:`<div class="av"><i class="${PLAT[s.p][1]}"></i></div>`}<div><b>${esc(s.n)}</b><small>${PLAT[s.p][0]}${s.game?' · '+esc(s.game):''}</small></div></div>
+<div class="sf"><span>${esc(s.title||(s.live?'بث مباشر':'غير متصل الآن'))}</span><em>↗ ${PLAT[s.p][0]}</em></div></a>`;
+async function loadStreams(){const g=$('sg');if(!ST.length){g.innerHTML='<p style="color:#aaa">لا يوجد ستريمرز مضافين بعد.</p>';LIVE=0;return badge()}
+ const rs=await Promise.all(ST.map(async s=>({...s,...((s.p==='kick'?await kick(s.u):{live:!!s.live,title:s.title||'بث مباشر'})||{live:false})})));
+ const on=rs.filter(s=>s.live),off=rs.filter(s=>!s.live);LIVE=on.length;
+ g.innerHTML=(on.length?`<h3 style="grid-column:1/-1;color:#f87171">🔴 مباشر الآن (${on.length})</h3>`+on.map(scard).join(''):'<p style="grid-column:1/-1;color:#aaa">لا أحد يبث حالياً.</p>')+(off.length?'<h3 style="grid-column:1/-1;color:var(--mut)">⚫ غير متصلين</h3>'+off.map(scard).join(''):'');badge()}
+
+/* ===================== التقديم ===================== */
+function apRender(){const c=AP,site=c.mode!=='discord',ds=c.mode!=='site';
+ $('apbox').innerHTML=`<div class="ah"><div class="bd ${c.open?'ok':'no'}"><i></i>${c.open?'متاح للتقديم الآن':'التقديم مغلق حالياً'}</div><h2>التقديم على الوايت ليست</h2>
+<p style="color:#d6cfe8">${c.open?`أقل عمر ${c.minAge} سنة. سجّل الدخول بحساب ديسكورد ثم أجب بصدق.`:'سيتم فتح التقديم قريباً، تابعنا على الديسكورد.'}</p>
+${c.open?`<div class="row" style="justify-content:center;margin-top:18px">${site?'<button class="btn" onclick="nv.form()"><i class="fa-solid fa-file-pen"></i> التقديم من الموقع</button>':''}${ds?`<a class="btn alt" href="${esc(c.discord)}" target="_blank" rel="noopener"><i class="fa-brands fa-discord"></i> التقديم من سيرفر الديسكورد</a>`:''}</div>`:''}</div><div id="apf"></div>`}
+nv.form=()=>{if(!U){toast('سجّل الدخول بـ Discord أولاً');return login()}
+ $('apf').innerHTML=`<form onsubmit="nv.send(event)" style="margin-top:22px">${AP.qs.map((q,i)=>`<div class="fg"><label>${esc(q.q)}${q.r?' <b style="color:#f87171">*</b>':''}</label>${q.t==='a'?`<textarea name="q${i}" rows="3"${q.r?' required':''}${/قصة/.test(q.q)?' minlength="20"':''}></textarea>`:`<input name="q${i}" type="${q.t==='t'?'text':'number'}"${q.t==='g'?` min="${AP.minAge}"`:''}${q.r?' required':''}>`}</div>`).join('')}<button class="btn full"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button></form>`;$('apf').scrollIntoView({behavior:'smooth'})};
+nv.send=async e=>{e.preventDefault();if(!U)return toast('سجّل الدخول أولاً');if(!AP.open)return toast('❌ التقديم مغلق');
+ const f=e.target,ans=AP.qs.map((q,i)=>({q:q.q,a:(f.elements['q'+i].value||'').trim()})),ai=AP.qs.findIndex(q=>q.t==='g');
+ if(ai>=0&&!(+ans[ai].a>=AP.minAge))return toast('❌ أقل عمر للتقديم '+AP.minAge+' سنة');
+ const id='APP-'+Date.now().toString().slice(-6),o={id,type:'تقديم وايت ليست',userId:U.id,username:U.username,applicantName:ans[0].a,status:'قيد المراجعة',exactTimestamp:ts(),ts:Date.now(),answers:ans};
+ const{error}=await sb.from('apps').insert({id,user_id:U.id,ts:o.ts,data:o});if(error)return toast('❌ فشل الإرسال');
+ $('apf').innerHTML='';toast('✅ تم إرسال تقديمك، سيراجعه فريق الإدارة')};
+
+/* ===================== لوحة الإدارة ===================== */
+const qRow=q=>`<div class="ed qr"><div class="row" style="flex-wrap:nowrap"><input class="in qq" value="${esc(q.q)}"><button class="mini" style="background:var(--no)" onclick="this.closest('.ed').remove()">🗑</button></div><div class="row"><select class="in qt" style="width:auto">${[['t','نص قصير'],['a','نص طويل'],['n','رقم'],['g','العمر']].map(([v,n])=>`<option value="${v}"${q.t===v?' selected':''}>${n}</option>`).join('')}</select><label><input type="checkbox" class="qrq"${q.r?' checked':''}> إجباري</label></div></div>`;
+const sRow=s=>`<div class="ed sr"><div class="row" style="flex-wrap:nowrap"><input class="in sn" placeholder="اسم الستريمر" value="${esc(s.n||'')}"><button class="mini" style="background:var(--no)" onclick="this.closest('.ed').remove()">🗑</button></div><input class="in su" dir="ltr" placeholder="اسم القناة أو رابط كامل" value="${esc(s.u||'')}"><div class="row"><select class="in sp" style="width:auto">${Object.keys(PLAT).map(k=>`<option value="${k}"${s.p===k?' selected':''}>${PLAT[k][0]}</option>`).join('')}</select><label><input type="checkbox" class="sl"${s.live?' checked':''}> مباشر (يدوي لغير Kick)</label></div></div>`;
+const PARTS={mono:'#imono',lines:'.iln',sub:'#isub',ar:'#iar',cred:'#icred',bars:'.lb'};
+function admRender(){if(!ADM)return;const E=$('admin');if(E.dataset.f)return;E.dataset.f=1;
+ E.innerHTML=`<h2 style="margin-bottom:16px;color:#f0abfc"><i class="fa-solid fa-user-shield"></i> لوحة التحكم</h2>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-eye"></i> الزوار الآن (<span id="onN">0</span>)</h3><div class="on-l" id="onL"></div><div id="vl" style="max-height:260px;overflow:auto"></div></div>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-server"></i> حالة السيرفر</h3>
+<div class="fg"><label>الوضع</label><select id="smm"><option value="auto">قراءة حقيقية (تلقائي)</option><option value="open">مفتوح (يدوي)</option><option value="closed">مقفول (يدوي)</option><option value="maint">صيانة</option></select></div>
+<div class="fg"><label>رسالة للاعبين (اختياري)</label><input id="smg"></div><button class="btn full" onclick="nv.saveSm()">حفظ</button></div>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-file-pen"></i> إعدادات التقديم</h3>
+<div class="fg"><label>الحالة</label><select id="ao"><option value="1">مفتوح</option><option value="0">مقفول</option></select></div>
+<div class="fg"><label>الطريقة</label><select id="am2"><option value="both">من الموقع + من الديسكورد</option><option value="site">من الموقع فقط</option><option value="discord">من الديسكورد فقط</option></select></div>
+<div class="fg"><label>رابط الديسكورد</label><input id="ad" dir="ltr"></div><div class="fg"><label>أقل عمر</label><input id="aa" type="number" min="1"></div>
+<div id="ql"></div><div class="row"><button class="btn ghost" onclick="$('ql').insertAdjacentHTML('beforeend',qRow({q:'سؤال جديد',t:'a',r:1}))">➕ سؤال</button><button class="btn" style="flex:1" onclick="nv.saveAp()">حفظ التقديم</button></div></div>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-tower-broadcast"></i> الستريمرز</h3><div id="sl"></div>
+<div class="row"><button class="btn ghost" onclick="$('sl').insertAdjacentHTML('beforeend',sRow({p:'kick'}))">➕ ستريمر</button><button class="btn" style="flex:1" onclick="nv.saveSt()">حفظ الستريمرز</button></div></div>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-film"></i> الدخلة</h3>
+<div class="fg"><label>النوع</label><select id="im"><option value="default">الافتراضية</option><option value="custom">مخصصة (كود أو ملف)</option><option value="off">بدون دخلة</option></select></div>
+<div class="fg"><label>العنوان</label><input id="it" placeholder="NOVA CITY"></div><div class="fg"><label>العنوان الفرعي</label><input id="is"></div><div class="fg"><label>الجملة العربي</label><input id="ia"></div>
+<div class="fg"><label>إخفاء عناصر</label>${Object.keys(PARTS).map(k=>`<label style="display:inline-block;margin-inline-end:12px"><input type="checkbox" class="ih" value="${k}" style="width:auto"> ${k}</label>`).join('')}</div>
+<div class="fg"><label>كود HTML مخصص أو ملف .html</label><textarea id="ih" rows="5" dir="ltr"></textarea><input type="file" accept=".html,.htm,.txt" style="margin-top:8px" onchange="nv.file(event)"></div>
+<div class="fg"><label>مدة المخصصة (ثواني)</label><input id="isec" type="number" min="2"></div><button class="btn full" onclick="nv.saveIn()">حفظ (يظهر عند الدخول التالي)</button></div>
+<div class="card"><h3 style="margin-bottom:12px;color:var(--c)"><i class="fa-solid fa-inbox"></i> طلبات التقديم</h3><div id="apl"><p style="color:#aaa">جاري التحميل...</p></div></div>`;
+ fill();appsLoad();visLoad();supNow()}
+function fill(){if(!$('ql'))return;$('smm').value=SM.mode;$('smg').value=SM.msg||'';$('ao').value=AP.open?'1':'0';$('am2').value=AP.mode;$('ad').value=AP.discord;$('aa').value=AP.minAge;$('ql').innerHTML=AP.qs.map(qRow).join('');$('sl').innerHTML=ST.map(sRow).join('');
+ $('im').value=IC.mode||'default';$('it').value=IC.title||'';$('is').value=IC.sub||'';$('ia').value=IC.ar||'';$('ih').value=IC.html||'';$('isec').value=IC.sec||8;$$('.ih').forEach(c=>c.checked=(IC.hide||[]).includes(c.value))}
+nv.saveSm=async()=>{SM={mode:$('smm').value,msg:$('smg').value.trim()};if(await kvSet('status',SM)){toast('✅ تم حفظ حالة السيرفر');stRead()}};
+nv.saveAp=async()=>{AP={open:$('ao').value==='1',mode:$('am2').value,discord:$('ad').value.trim(),minAge:+$('aa').value||12,qs:$$('#ql .qr').map(e=>({q:e.querySelector('.qq').value.trim(),t:e.querySelector('.qt').value,r:e.querySelector('.qrq').checked?1:0})).filter(q=>q.q)};if(await kvSet('apply',AP)){toast('✅ تم حفظ التقديم');apRender()}};
+nv.saveSt=async()=>{ST=$$('#sl .sr').map(e=>({n:e.querySelector('.sn').value.trim(),u:e.querySelector('.su').value.trim(),p:e.querySelector('.sp').value,live:e.querySelector('.sl').checked})).filter(s=>s.n&&s.u);if(await kvSet('streamers',ST)){toast('✅ تم حفظ الستريمرز');loadStreams()}};
+nv.saveIn=async()=>{IC={mode:$('im').value,title:$('it').value.trim(),sub:$('is').value.trim(),ar:$('ia').value.trim(),html:$('ih').value,sec:+$('isec').value||8,hide:$$('.ih').filter(c=>c.checked).map(c=>c.value)};localStorage.setItem('nv_intro',JSON.stringify(IC));if(await kvSet('intro',IC))toast('✅ تم حفظ الدخلة')};
+nv.file=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('ih').value=r.result;$('im').value='custom'};r.readAsText(f)};
+async function appsLoad(){const r=await sb.from('apps').select('*').order('ts',{ascending:false});const a=(r.data||[]).map(x=>x.data);
+ $('apl').innerHTML=a.length?a.map(o=>`<div class="tk"><div class="row" style="justify-content:space-between"><b style="color:var(--g)">${esc(o.applicantName)} · ${esc(o.username)}</b><span class="sb">${esc(o.status)}</span></div><p style="font-size:.78rem;color:var(--mut)">${esc(o.exactTimestamp)} · ID: ${esc(o.userId)}</p>${(o.answers||[]).map(n=>`<p style="font-size:.85rem;margin-top:4px"><b>${esc(n.q)}:</b> ${esc(n.a)}</p>`).join('')}
+<div class="row" style="margin-top:10px"><button class="mini" style="background:#16a34a" onclick="nv.st('${o.id}','مقبول')">قبول</button><button class="mini" style="background:#dc2626" onclick="nv.st('${o.id}','مرفوض')">رفض</button><button class="mini" style="background:#475569" onclick="nv.del('${o.id}')">حذف</button></div></div>`).join(''):'<p style="color:#aaa">لا توجد طلبات.</p>'}
+nv.st=async(id,s)=>{const r=await sb.from('apps').select('data').eq('id',id).maybeSingle();if(!r.data)return;const o=r.data.data;o.status=s;await sb.from('apps').update({data:o}).eq('id',id);appsLoad()};
+nv.del=async id=>{if(!confirm('حذف الطلب؟'))return;await sb.from('apps').delete().eq('id',id);appsLoad()};
+
+/* ===================== الزوار لحظياً ===================== */
+const vid=localStorage.nv_vid||(localStorage.nv_vid='v'+Math.random().toString(36).slice(2,10));
+const who=()=>U?{id:U.id,name:U.username}:{id:vid,name:'زائر '+vid.slice(-4)};
+function visRender(){const e=$('vl');if(e)e.innerHTML=LV.length?LV.slice(0,60).map(v=>`<div class="tk" style="padding:8px 12px" ><div class="row" style="justify-content:space-between"><span>${v.type==='enter'?'🟢 دخل':'🔴 خرج'} <b>${esc(v.name)}</b></span><small style="color:var(--g)">${esc(v.t)}</small></div></div>`).join(''):'<p style="color:#aaa">لا يوجد سجل بعد.</p>'}
+function supNow(){const l=Object.values(ON).map(a=>a[0]||{});if($('onN'))$('onN').textContent=l.length;if($('onL'))$('onL').innerHTML=l.map(p=>`<span>${esc(p.name||'زائر')}</span>`).join('')}
+async function visLoad(){const r=await sb.from('visits').select('*').order('ts',{ascending:false}).limit(60);LV=(r.data||[]).map(x=>x.data);visRender()}
+function ev(type,p){if(!ADM)return;toast((type==='enter'?'🟢 دخل: ':'🔴 خرج: ')+(p.name||'زائر'));LV.unshift({type,name:p.name||'زائر',t:ts()});visRender()}
+function logv(type){const m=who();fetch(SB_URL+'/rest/v1/visits',{method:'POST',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({ts:Date.now(),data:{type,id:m.id,name:m.name,t:ts()}})}).catch(()=>{})}
+function presence(){let me=who();const ch=sb.channel('nv-room',{config:{presence:{key:vid}}});
+ ch.on('presence',{event:'sync'},()=>{ON=ch.presenceState();supNow()}).on('presence',{event:'join'},({key,newPresences})=>{if(key!==vid)ev('enter',newPresences[0]||{})}).on('presence',{event:'leave'},({key,leftPresences})=>{if(key!==vid)ev('leave',leftPresences[0]||{})})
+ .subscribe(async s=>{if(s==='SUBSCRIBED'){await ch.track(me);setTimeout(()=>logv('enter'),2500)}});
+ setInterval(()=>{const n=who();if(n.name!==me.name){me=n;ch.track(me)}},3000);addEventListener('pagehide',()=>logv('leave'))}
+
+/* ===================== الخلفية ===================== */
+function bgInit(){const c=$('bg'),x=c.getContext('2d'),mob=innerWidth<700,rm=matchMedia('(prefers-reduced-motion:reduce)').matches;let W,H,S=[],D=[],M=[],L=[],t=0,lt=0,nx=0;
  const mk=()=>{W=c.width=innerWidth;H=c.height=innerHeight;
-  B=Array.from({length:mob?14:28},()=>({x:Math.random()*W,y:Math.random()*H,r:30+Math.random()*90,v:.05+Math.random()*.2,p:Math.random()*6.28,a:.5+Math.random()*.5,c:Math.random()<.5?'167,139,250':'231,214,168'}));
-  D=Array.from({length:mob?110:220},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.3,v:Math.random()*.45+.12,p:Math.random()*6.28,g:Math.random()<.6}));
-  K=Array.from({length:14},()=>({x:Math.random()*W,y:Math.random()*H*.85,p:Math.random()*6.28,s:.5+Math.random()*.8,z:5+Math.random()*9}))};
- const rings=(cx,cy,R,a)=>{x.save();x.translate(cx,cy);x.lineWidth=1;
-  x.strokeStyle=`rgba(196,181,253,${.5*a})`;x.beginPath();x.arc(0,0,R*a,0,6.283);x.stroke();
-  x.strokeStyle=`rgba(231,214,168,${.45*a})`;x.setLineDash([2,9]);x.beginPath();x.arc(0,0,R*1.14*a,t*.25,t*.25+6.283);x.stroke();x.setLineDash([]);
-  x.save();x.rotate(-t*.12);for(let i=0;i<72;i++){x.strokeStyle=`rgba(231,214,168,${(i%6?.25:.7)*a})`;x.beginPath();x.moveTo(R*1.25*a,0);x.lineTo(R*1.25*a+(i%6?5:13),0);x.stroke();x.rotate(6.283/72)}x.restore();
-  for(let i=0;i<4;i++){const an=t*.4+i*1.5708;x.save();x.translate(Math.cos(an)*R*a,Math.sin(an)*R*a);x.rotate(.785);x.fillStyle=`rgba(231,214,168,${.9*a})`;x.fillRect(-3,-3,6,6);x.restore()}
-  x.restore()};
- const scene=()=>{x.globalCompositeOperation='source-over';
-  let g=x.createRadialGradient(W/2,H*.42,0,W/2,H*.42,Math.max(W,H)*.8);g.addColorStop(0,'#1c0d3f');g.addColorStop(.55,'#0a0420');g.addColorStop(1,'#02000a');x.fillStyle=g;x.fillRect(0,0,W,H);
-  x.globalCompositeOperation='lighter';
-  [[.2,'124,58,237'],[.8,'231,214,168']].forEach(([fx,rgb],i)=>{const cx=W*(fx+Math.sin(t*.25+i*3)*.12),cy=H*(.3+Math.cos(t*.2+i)*.1);g=x.createRadialGradient(cx,cy,0,cx,cy,W*.5);g.addColorStop(0,`rgba(${rgb},${.16*E(t/2)})`);g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,W,H)});
-  const a=E((t-1.6)/2);if(a>0){g=x.createLinearGradient(0,0,0,H*.78);g.addColorStop(0,`rgba(235,225,255,${.2*a})`);g.addColorStop(1,'transparent');x.fillStyle=g;x.beginPath();x.moveTo(W/2-6,0);x.lineTo(W/2+6,0);x.lineTo(W/2+W*.26,H*.8);x.lineTo(W/2-W*.26,H*.8);x.fill()}
-  B.forEach(b=>{b.y-=b.v;b.x+=Math.sin(t*.4+b.p)*.3;if(b.y<-b.r){b.y=H+b.r;b.x=Math.random()*W}const k=E(t/2.5)*b.a;g=x.createRadialGradient(b.x,b.y,b.r*.6,b.x,b.y,b.r);g.addColorStop(0,`rgba(${b.c},${.04*k})`);g.addColorStop(.85,`rgba(${b.c},${.11*k})`);g.addColorStop(1,`rgba(${b.c},0)`);x.fillStyle=g;x.beginPath();x.arc(b.x,b.y,b.r,0,6.283);x.fill()});
-  D.forEach(d=>{d.y-=d.v;if(d.y<0){d.y=H;d.x=Math.random()*W}x.fillStyle=d.g?`rgba(255,226,170,${(.3+Math.sin(t*4+d.p)*.25)*E(t/2)})`:`rgba(221,208,255,${(.3+Math.sin(t*4+d.p)*.25)*E(t/2)})`;x.beginPath();x.arc(d.x+Math.sin(t+d.p)*10,d.y,d.r,0,6.283);x.fill()});
-  K.forEach(k=>{const s=Math.sin(t*k.s+k.p);if(s<.55)return;const l=k.z*(s-.55)*2.2;x.strokeStyle=`rgba(255,240,200,${(s-.55)*2})`;x.lineWidth=1;x.beginPath();x.moveTo(k.x-l,k.y);x.lineTo(k.x+l,k.y);x.moveTo(k.x,k.y-l);x.lineTo(k.x,k.y+l);x.stroke()});
-  const m=$('imono').getBoundingClientRect(),ra=E((t-3)/2.2);if(ra>0)rings(m.left+m.width/2,m.top+m.height/2,m.width*.82,ra);
-  if(t>6.8&&t<9.4){const f=Math.sin((t-6.8)/2.6*Math.PI),w=W*E((t-6.8)/1.1),r=$('itt').getBoundingClientRect(),cy=r.top+r.height/2;
-   g=x.createLinearGradient(W/2-w/2,0,W/2+w/2,0);g.addColorStop(0,'transparent');g.addColorStop(.5,`rgba(240,232,255,${.9*f})`);g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(W/2-w/2,cy-1.5,w,3);
-   g=x.createRadialGradient(W/2,cy,0,W/2,cy,W*.4);g.addColorStop(0,`rgba(200,180,255,${.2*f})`);g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,W,H)}
-  x.globalCompositeOperation='source-over'};
- const flash=()=>{const f=$('flash');f.style.transition='opacity .08s';f.style.opacity='.8';requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transition='opacity 1.2s ease-out';f.style.opacity='0'}))};
- const finish=()=>{if(ended)return;ended=true;document.body.classList.add('go');flash();I.classList.add('out');setTimeout(()=>{run=false;I.remove();typeLoop();counters()},1200)};
- const showCred=sec=>{if(mode==='cred')return;mode='cred';$('skip').style.display='none';$('iname').classList.add('hide');
-  word($('cn'),'Team NV',.3);const r=$('icred');r.style.setProperty('--cd',sec+'s');r.classList.add('on');setTimeout(finish,sec*1000+300)};
- window.skipIntro=()=>showCred(INTRO.SKIP_CREDIT);
- const f=n=>{if(!run)return;t+=Math.min(.05,(n-last)/1000);last=n;x.clearRect(0,0,W,H);scene();
-  const p=Math.min(100,t/T*100|0);if(p!==pc){pc=p;$('ipct').textContent=String(p).padStart(3,'0')}
-  if(t>=INTRO.NAME-.8)$('iname').classList.add('hide');
-  if(mode==='play'&&t>=INTRO.NAME)showCred(INTRO.CREDIT);
-  requestAnimationFrame(f)};
- document.querySelector('#itime i').style.animationDuration=T+'s';
- mk();addEventListener('resize',()=>{if(run)mk()});
- requestAnimationFrame(()=>{I.classList.add('on');requestAnimationFrame(f)})};
-
-/* خلفية الموقع: مدينة ليلية + شفق + نجوم + نيازك + نوافذ بتومض */
-window.bg=function(){const c=$('bg'),x=c.getContext('2d'),mob=innerWidth<700,rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
- let W=0,H=0,C=[],F=[],S=[],D=[],M=[],t=0,px=0,tx=0,lt=0,nx=0;
- const init=()=>{if(W&&Math.abs(innerWidth-W)<2&&Math.abs(innerHeight-H)<140)return;W=c.width=innerWidth;H=c.height=innerHeight;C=makeCity(W,H*.5,mob?.16:.17);
-  F=Array.from({length:6},(_,i)=>({x:Math.random(),y:.58+Math.random()*.3,r:.35+Math.random()*.4,v:(.004+Math.random()*.006)*(i%2?1:-1)}));
-  S=Array.from({length:mob?140:260},()=>({x:Math.random()*W,y:Math.random()*H*.72,r:Math.random()*1.3+.3,p:Math.random()*6.28,s:.4+Math.random()*1.6}));
-  D=Array.from({length:mob?60:130},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,v:.1+Math.random()*.4,p:Math.random()*6.28,g:Math.random()<.35}))};
- const draw=n=>{if(!rm&&mob&&n-lt<32){requestAnimationFrame(draw);return}lt=n;if(!rm)t+=.004;px+=(tx-px)*.05;
-  x.globalCompositeOperation='source-over';
+  S=Array.from({length:mob?120:240},()=>({x:Math.random()*W,y:Math.random()*H*.7,r:Math.random()*1.3+.3,p:Math.random()*6.28,s:.4+Math.random()*1.6}));
+  D=Array.from({length:mob?50:110},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,v:.1+Math.random()*.4,p:Math.random()*6.28}));
+  L=[[44,22,98,.16],[26,12,60,.26],[12,6,28,.38]].map(([r,g,b,hh],i)=>{const o=document.createElement('canvas');o.width=W*1.1;o.height=H*.5;const q=o.getContext('2d');
+   for(let bx=0;bx<o.width;){const w=24+Math.random()*60,h=o.height*(hh+Math.random()*.5);q.fillStyle=`rgb(${r},${g},${b})`;q.fillRect(bx,o.height-h,w,h);
+    if(i)for(let wy=o.height-h+8;wy<o.height-6;wy+=11)for(let wx=bx+4;wx<bx+w-4;wx+=8)if(Math.random()<.14){q.fillStyle=Math.random()<.2?'rgba(255,226,170,.7)':'rgba(196,181,253,.6)';q.fillRect(wx,wy,2,3)}bx+=w+Math.random()*6}return o})};
+ const draw=n=>{if(mob&&n-lt<33){requestAnimationFrame(draw);return}lt=n;if(!rm)t+=.004;
   let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#04020b');g.addColorStop(.55,'#12072b');g.addColorStop(1,'#2d1466');x.fillStyle=g;x.fillRect(0,0,W,H);
-  g=x.createRadialGradient(W*.74,H*.26,0,W*.74,H*.26,H*.55);g.addColorStop(0,'rgba(167,139,250,.30)');g.addColorStop(.35,'rgba(124,58,237,.14)');g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,W,H);
-  x.fillStyle='rgba(237,228,255,.85)';x.beginPath();x.arc(W*.74,H*.26,Math.min(W,H)*.03,0,6.28);x.fill();
+  g=x.createRadialGradient(W*.74,H*.26,0,W*.74,H*.26,H*.5);g.addColorStop(0,'rgba(167,139,250,.3)');g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,W,H);
   S.forEach(s=>{x.fillStyle=`rgba(226,214,255,${.25+Math.sin(t*20*s.s+s.p)*.22})`;x.fillRect(s.x,s.y,s.r,s.r)});
-  if(!rm&&t>nx){nx=t+.8+Math.random()*1.6;M.push({x:Math.random()*W*.9,y:Math.random()*H*.3,vx:9+Math.random()*5,vy:3+Math.random()*3,l:1})}
+  if(!rm&&t>nx){nx=t+1+Math.random()*2;M.push({x:Math.random()*W*.9,y:Math.random()*H*.3,vx:9+Math.random()*5,vy:3+Math.random()*3,l:1})}
   x.lineWidth=1.4;M=M.filter(m=>{x.strokeStyle=`rgba(255,240,255,${m.l})`;x.beginPath();x.moveTo(m.x,m.y);x.lineTo(m.x-m.vx*7,m.y-m.vy*7);x.stroke();m.x+=m.vx;m.y+=m.vy;m.l-=.02;return m.l>0});
   x.globalCompositeOperation='lighter';
-  [[.30,'124,58,237',0],[.42,'192,38,211',2.1],[.22,'79,70,229',4.2]].forEach(([yy,rgb,ph])=>{g=x.createLinearGradient(0,H*(yy-.1),0,H*(yy+.3));g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.35,`rgba(${rgb},.11)`);g.addColorStop(1,`rgba(${rgb},0)`);x.fillStyle=g;x.beginPath();
-   for(let i=0;i<=W;i+=24)x.lineTo(i,H*yy+Math.sin(i*.003+t*2+ph)*H*.07+Math.sin(i*.009-t*3+ph)*H*.02);for(let i=W;i>=0;i-=24)x.lineTo(i,H*(yy+.22)+Math.sin(i*.004+t*1.6+ph)*H*.05);x.fill()});
-  for(let i=0;i<2;i++){const bx=W*(.25+i*.5),a=-Math.PI/2+Math.sin(t*2+i*2.3)*.5,len=H;g=x.createLinearGradient(bx,H,bx+Math.cos(a)*len,H+Math.sin(a)*len);g.addColorStop(0,'rgba(196,181,253,.10)');g.addColorStop(1,'transparent');x.fillStyle=g;x.beginPath();x.moveTo(bx,H);x.lineTo(bx+Math.cos(a-.045)*len,H+Math.sin(a-.045)*len);x.lineTo(bx+Math.cos(a+.045)*len,H+Math.sin(a+.045)*len);x.fill()}
-  x.globalCompositeOperation='source-over';
-  const ly=i=>{const l=C[i],ox=-W*.075-px*26*l.k,oy=H-l.o.height;x.drawImage(l.o,ox,oy);drawWins(x,l.wins,ox,oy,t,false)};
-  ly(0);
+  [[.3,'124,58,237',0],[.42,'192,38,211',2.1]].forEach(([yy,rgb,ph])=>{g=x.createLinearGradient(0,H*(yy-.1),0,H*(yy+.3));g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.35,`rgba(${rgb},.11)`);g.addColorStop(1,`rgba(${rgb},0)`);x.fillStyle=g;x.beginPath();
+   for(let i=0;i<=W;i+=24)x.lineTo(i,H*yy+Math.sin(i*.003+t*2+ph)*H*.07);for(let i=W;i>=0;i-=24)x.lineTo(i,H*(yy+.22)+Math.sin(i*.004+t*1.6+ph)*H*.05);x.fill()});
+  x.globalCompositeOperation='source-over';L.forEach(o=>x.drawImage(o,-W*.05,H-o.height));
+  x.globalCompositeOperation='lighter';D.forEach(d=>{d.y-=d.v;if(d.y<0){d.y=H;d.x=Math.random()*W}x.fillStyle=`rgba(221,208,255,${.28+Math.sin(t*20+d.p)*.2})`;x.beginPath();x.arc(d.x+Math.sin(t*8+d.p)*10,d.y,d.r,0,6.28);x.fill()});
+  x.globalCompositeOperation='source-over';if(!rm)requestAnimationFrame(draw)};
+ mk();let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(mk,250)});draw(0)}
+
+/* ===================== الدخلة ===================== */
+function intro(){const I=$('intro'),c=IC;
+ const end=()=>{document.body.classList.add('go');I.classList.add('out');setTimeout(()=>I.remove(),1200);heroStart()};
+ if(c.mode==='off'){I.remove();return heroStart()}
+ if(c.mode==='custom'&&c.html){I.innerHTML='<iframe sandbox="allow-scripts" srcdoc="'+esc(c.html)+'" style="border:0;width:100%;height:100%"></iframe><button id="skip">تخطي ⏭</button>';$('skip').onclick=end;setTimeout(end,(c.sec||8)*1000);return}
+ I.innerHTML=`<canvas id="ic"></canvas><div class="ivig"></div><div class="lb t"></div><div class="lb b"></div>
+<div id="iname"><svg id="imono" viewBox="0 0 200 200"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c9"/><stop offset=".5" stop-color="#e7d6a8"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+<path class="mp" style="--l:520" d="M100 10 L190 100 L100 190 L10 100 Z"/><path class="mp b" style="--l:380" d="M100 34 L166 100 L100 166 L34 100 Z"/><path class="mp c" style="--l:200" d="M72 128 V72 L128 128 V72"/></svg>
+<div class="iln"></div><h1 id="itt">${esc(c.title||'NOVA CITY')}</h1><div class="iln" style="animation-delay:3.9s"></div><div id="isub">${esc(c.sub||'THE FIRST REALISTIC ROLEPLAY CITY')}</div><div id="iar">${esc(c.ar||'مدينة نوفا... حيث تبدأ قصتك')}</div></div>
+<div id="icred"><div class="cin"><i class="fa-brands fa-discord"></i><div class="ct">DIS DEV AND WEB</div><div class="cn" id="cn"></div></div></div>
+<button id="skip">تخطي ⏭</button><div id="itime"><i></i></div>`;
+ if((c.hide||[]).length)I.insertAdjacentHTML('beforeend','<style>'+c.hide.map(k=>PARTS[k]+'{display:none!important}').join('')+'</style>');
+ requestAnimationFrame(()=>I.classList.add('go'));
+ const cv=$('ic'),x=cv.getContext('2d'),W=cv.width=innerWidth,H=cv.height=innerHeight;let t=0,run=true;
+ const P=Array.from({length:innerWidth<700?90:200},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.3,v:.15+Math.random()*.5,p:Math.random()*6.28}));
+ (function f(){if(!run)return;t+=.016;x.clearRect(0,0,W,H);let g=x.createRadialGradient(W/2,H*.42,0,W/2,H*.42,Math.max(W,H)*.8);g.addColorStop(0,'#1c0d3f');g.addColorStop(.55,'#0a0420');g.addColorStop(1,'#02000a');x.fillStyle=g;x.fillRect(0,0,W,H);
   x.globalCompositeOperation='lighter';
-  F.forEach(f=>{const fx_=((f.x+t*f.v*40)%1.4+1.4)%1.4*W-W*.2,r=W*f.r;g=x.createRadialGradient(fx_,H*f.y,0,fx_,H*f.y,r);g.addColorStop(0,'rgba(139,92,246,.09)');g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(fx_-r,H*f.y-r,r*2,r*2)});
-  x.globalCompositeOperation='source-over';
-  ly(1);ly(2);
-  g=x.createLinearGradient(0,H*.7,0,H);g.addColorStop(0,'transparent');g.addColorStop(1,'rgba(76,29,149,.35)');x.fillStyle=g;x.fillRect(0,H*.7,W,H*.3);
-  x.globalCompositeOperation='lighter';
-  D.forEach(d=>{d.y-=d.v;if(d.y<0){d.y=H;d.x=Math.random()*W}x.fillStyle=d.g?`rgba(255,226,170,${.3+Math.sin(t*20+d.p)*.2})`:`rgba(221,208,255,${.28+Math.sin(t*20+d.p)*.2})`;x.beginPath();x.arc(d.x+Math.sin(t*8+d.p)*10,d.y,d.r,0,6.28);x.fill()});
-  x.globalCompositeOperation='source-over';
-  if(!rm)requestAnimationFrame(draw)};
- init();addEventListener('resize',()=>{init();if(rm)draw(0)});
- if(!mob)addEventListener('mousemove',e=>{tx=e.clientX/innerWidth-.5},{passive:true});
- draw(0)};
+  const m=$('imono');if(m){const r=m.getBoundingClientRect(),a=Math.min(1,Math.max(0,(t-1.2)/2)),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width*.82*a;x.strokeStyle=`rgba(196,181,253,${.5*a})`;x.beginPath();x.arc(cx,cy,R,0,6.28);x.stroke();x.strokeStyle=`rgba(231,214,168,${.45*a})`;x.setLineDash([2,9]);x.beginPath();x.arc(cx,cy,R*1.14,t*.3,t*.3+6.28);x.stroke();x.setLineDash([])}
+  P.forEach(d=>{d.y-=d.v;if(d.y<0){d.y=H;d.x=Math.random()*W}x.fillStyle=`rgba(221,208,255,${(.3+Math.sin(t*4+d.p)*.25)*Math.min(1,t/2)})`;x.beginPath();x.arc(d.x+Math.sin(t+d.p)*10,d.y,d.r,0,6.28);x.fill()});
+  x.globalCompositeOperation='source-over';requestAnimationFrame(f)})();
+ let done=0;const cred=()=>{if(done)return;done=1;$('skip').style.display='none';$('iname').classList.add('hide');$('cn').innerHTML=[...'Team NV'].map((ch,i)=>ch===' '?'<span style="width:.35em"></span>':`<span style="animation-delay:${.3+i*.14}s">${ch}</span>`).join('');$('icred').classList.add('on');setTimeout(()=>{run=false;end()},4200)};
+ $('skip').onclick=cred;setTimeout(cred,7600)}
 
-/* ظهور العناصر عند السكرول */
-window.reveal=function(){if(!reveal.io)reveal.io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;el.classList.add('in');reveal.io.unobserve(el);setTimeout(()=>{el.style.transitionDelay='';el.classList.add('rdy')},1500)}}),{threshold:.08});
- document.querySelectorAll('.rv:not(.in)').forEach(el=>reveal.io.observe(el))};
+/* ===================== الرئيسية ===================== */
+function heroStart(){const h=$('h1');h.innerHTML=h.textContent.trim().split(/\s+/).map((w,i)=>`<span style="--k:${i}">${w}</span>`).join(' ');
+ const w=['أحسن سيرفر رول بلاي في مصر','عيش قصتك في مدينة نوفا','العب RP — احترم غيرك — اصنع قصتك'],e=$('type');let i=0,j=0,d=false;
+ (function s(){const t=w[i];e.textContent=t.slice(0,j);if(!d&&j<t.length){j++;setTimeout(s,70)}else if(!d){d=true;setTimeout(s,1800)}else if(j>0){j--;setTimeout(s,30)}else{d=false;i=(i+1)%w.length;setTimeout(s,300)}})()}
+function homeInit(){const it=[['status','fa-server','حالة السيرفر','<span id="hS">...</span>','#34d399'],['streams','fa-tower-broadcast','البثوث','<span id="hL">...</span>','#f87171'],['apply','fa-file-pen','التقديم','قدّم على الوايت ليست','#fcd34d'],['discord','fa-brands fa-discord','الديسكورد','انضم لمجتمعنا','#818cf8'],['terms','fa-scale-balanced','الشروط','الشروط والأحكام','#a78bfa'],['home','fa-circle-info','عن المدينة','أول مدينة عربية واقعية','#c084fc']];
+ $('menu').innerHTML=it.map(([id,ic,n,d,c])=>`<button class="mc rv" style="--ac:${c}" data-g="${id}"><i class="${ic.includes('brands')?ic:'fa-solid '+ic}"></i><b>${n}</b><small>${d}</small></button>`).join('');
+ $$('.mc').forEach(b=>b.onclick=()=>{const g=b.dataset.g;g==='discord'?window.open(AP.discord,'_blank'):g==='terms'?nv.terms():go(g)});
+ const r=['رول بلاي واقعي 100%','الأول في مصر','مجتمع نشط 24/7','قصتك تبدأ هنا','العب RP — احترم غيرك — اصنع قصتك'].map(s=>`<span>${s}</span>`).join('');$('trk').innerHTML=r+r+r+r;reveal()}
 
-/* اختيارات فخمة للتذاكر والتقديمات */
-const luxSel=(id,meta)=>{const s=$(id);if(!s||s.dataset.lx)return;s.dataset.lx=1;s.style.display='none';
- const g=document.createElement('div');g.className='lxg';
- g.innerHTML=[...s.options].map((o,i)=>{const m=meta[o.text]||{};return `<button type="button" class="lxc${i?'':' sel'}" data-v="${esc(o.value)}" style="--ac:${m.c||'#a78bfa'};--i:${i}"><span class="lxi"><i class="fa-solid ${m.i||'fa-star'}"></i></span><b>${esc(o.text)}</b><small>${m.d||''}</small><em class="lxk"><i class="fa-solid fa-check"></i></em></button>`}).join('');
- s.insertAdjacentElement('afterend',g);
- g.addEventListener('click',e=>{const b=e.target.closest('.lxc');if(!b)return;g.querySelectorAll('.lxc').forEach(z=>z.classList.toggle('sel',z===b));s.value=b.dataset.v;s.dispatchEvent(new Event('change'))})};
-const luxAll=()=>{
- luxSel('tcat',{'دعم فني':{i:'fa-headset',c:'#60a5fa',d:'مشكلة في الموقع أو السيرفر'},'طلب انضمام للشرطة':{i:'fa-shield-halved',c:'#3b82f6',d:'قدّم للانضمام لقسم الشرطة'},'طلب انضمام للمطافي':{i:'fa-fire-extinguisher',c:'#f97316',d:'انضم لفريق الإطفاء'},'طلب انضمام للإسعاف':{i:'fa-truck-medical',c:'#ef4444',d:'انضم لفريق الإسعاف'},'استفسار عام':{i:'fa-circle-question',c:'#a78bfa',d:'أي سؤال عن المدينة'},'شكوى':{i:'fa-triangle-exclamation',c:'#f59e0b',d:'بلّغ عن مخالفة أو لاعب'}});
- luxSel('atype',{'تقديم إدارة السيرفر':{i:'fa-crown',c:'#e7d6a8',d:'كن جزءاً من فريق الإدارة'},'تقديم ستريمر (صانع محتوى)':{i:'fa-video',c:'#ec4899',d:'ابثّ وانشر محتوى المدينة'}})};
-
-/* محرك الأنيميشن العام */
-window.fx=function(){
- const fine=matchMedia('(pointer:fine)').matches,root=document.documentElement,p=$('prog');
- addEventListener('scroll',()=>{root.style.setProperty('--sy',scrollY);p.style.width=(scrollY/(root.scrollHeight-innerHeight||1)*100)+'%'},{passive:true});
- ['o1','o2','o3'].forEach(k=>document.body.insertAdjacentHTML('afterbegin',`<div class="orb ${k}"></div>`));
- if(fine){document.body.insertAdjacentHTML('beforeend','<div id="cur"></div><div id="cur2"></div>');const a=$('cur'),b=$('cur2');let bx=0,by=0,mx=0,my=0;
-  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;a.style.left=mx+'px';a.style.top=my+'px'},{passive:true});
-  (function l(){bx+=(mx-bx)*.16;by+=(my-by)*.16;b.style.left=bx+'px';b.style.top=by+'px';requestAnimationFrame(l)})();
-  document.addEventListener('mouseover',e=>b.classList.toggle('hov',!!e.target.closest('button,a,input,select,textarea,.rc,.tk,.mi')))}
- document.addEventListener('mousemove',e=>{
-  const s=e.target.closest('.card,.rc,.tk,.col');if(s){const r=s.getBoundingClientRect();s.style.setProperty('--mx',(e.clientX-r.left)+'px');s.style.setProperty('--my',(e.clientY-r.top)+'px')}
-  const t=fine&&e.target.closest('.rc,.mi,.stat');if(t){const r=t.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;t.style.transform=`perspective(700px) translateY(-6px) rotateX(${py*-9}deg) rotateY(${px*11}deg)`}
- },{passive:true});
- document.addEventListener('mouseout',e=>{const t=e.target.closest('.rc,.mi,.stat');if(t&&!(e.relatedTarget&&t.contains(e.relatedTarget)))t.style.transform=''});
- document.addEventListener('click',e=>{
-  const t=e.target.closest('.sub,.nb,.btn-ds,.btn-auth');
-  if(t){const r=t.getBoundingClientRect(),s=document.createElement('span'),z=Math.max(r.width,r.height);s.className='ripple';s.style.cssText=`width:${z}px;height:${z}px;left:${e.clientX-r.left-z/2}px;top:${e.clientY-r.top-z/2}px`;t.appendChild(s);setTimeout(()=>s.remove(),600)}
-  for(let i=0;i<9;i++){const d=document.createElement('i'),a=i/9*6.283+Math.random()*.5,l=30+Math.random()*40;d.style.cssText=`position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:5px;height:5px;margin:-2px;background:${i%2?'#e7d6a8':'#c4b5fd'};z-index:99999997;pointer-events:none`;document.body.appendChild(d);
-   d.animate([{transform:'translate(0,0) rotate(45deg) scale(1)',opacity:1},{transform:`translate(${Math.cos(a)*l}px,${Math.sin(a)*l}px) rotate(225deg) scale(0)`,opacity:0}],{duration:650,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>d.remove()}});
- /* مؤشر التبويب المنزلق */
- const nav=$('nav');nav.insertAdjacentHTML('afterbegin','<i class="nav-ind"></i>');const ind=nav.firstChild;
- const mv=()=>{const a=nav.querySelector('.nb.active');if(!a)return;ind.style.left=a.offsetLeft+'px';ind.style.width=a.offsetWidth+'px';a.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'})};
- window.switchTab=(f=>id=>{f(id);mv()})(window.switchTab);
- addEventListener('resize',mv);setTimeout(mv,150);document.fonts&&document.fonts.ready.then(mv);
- new MutationObserver(ms=>{if(ms.some(m=>m.target!==ind))mv()}).observe(nav,{attributes:true,subtree:true,attributeFilter:['style']});
- /* الهيرو: كلمات متحركة + إمبلم + شريط متحرك */
- const hero=document.querySelector('.hero');
- if(hero){const h1=hero.querySelector('h1');h1.innerHTML=h1.textContent.trim().split(/\s+/).map((w,i)=>`<span class="w" style="--k:${i}">${w}</span>`).join(' ');
-  hero.insertAdjacentHTML('beforeend','<div class="emb"><i></i><i></i><i></i><i></i><b></b></div>');
-  const items=['رول بلاي واقعي 100%','الأول في مصر','مجتمع نشط 24/7','قصتك تبدأ هنا','العب RP — احترم غيرك — اصنع قصتك'],row=items.map(s=>`<span>${s}</span>`).join('');
-  hero.insertAdjacentHTML('afterend',`<div class="tick"><div class="trk">${row}${row}${row}${row}</div></div>`)}
- /* كل العناصر تظهر بأنيميشن */
- const sel='main .card:not(.hero),main .tk,main .mi,main .col,main h2,main .fg,main .stat,main .tick';
- const rv=()=>{document.querySelectorAll(sel).forEach((el,i)=>{if(el.dataset.rv)return;el.dataset.rv=1;el.classList.add('rv');el.style.transitionDelay=(i%5)*.07+'s'});reveal()};
- new MutationObserver(()=>{clearTimeout(rv.t);rv.t=setTimeout(rv,60)}).observe(document.querySelector('main'),{childList:true,subtree:true});rv();luxAll()};
-
-/* ---------- حالة السيرفر الحقيقية ---------- */
-const OFFW=/offline|sleep|hibernat|stopp/,STW=/start|load|queue|prepar|saving|wait/;
-function cls(a){const v=(a.v||'').toLowerCase(),m=(a.mo||'').toLowerCase(),ps=a.m===0||/[●•]/.test(a.v||'');
- if(!a.on)return'off';if(!ps)return'on';
- return OFFW.test(v)?'off':STW.test(v)?'start':OFFW.test(m)?'off':STW.test(m)?'start':a.p>0?'on':'off'}
-readSrv=async function(){
- const hosts=[CFG.ADDR,CFG.DYN].filter(Boolean).map(a=>a.toLowerCase()+':'+CFG.PORT),mo=m=>Array.isArray(m?.clean)?m.clean.join(' '):(m?.clean||'');
- const one=async(n,u,f)=>{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),9000);try{const r=await fetch(u,{cache:'no-store',signal:ac.signal});if(!r.ok)throw 0;const j=f(await r.json());j.src=n;return j}finally{clearTimeout(tm)}};
- const g=r=>({on:!!r.online,v:typeof r.version==='string'?r.version:(r.version?.name_clean||r.version?.name||''),mo:mo(r.motd),p:r.players?.online??0,m:r.players?.max??0});
- const jobs=[];hosts.forEach(h=>{jobs.push(one('mcstatus.io '+h,`https://api.mcstatus.io/v2/status/java/${h}`,g),one('mcsrvstat v3 '+h,`https://api.mcsrvstat.us/3/${h}`,g),one('mcsrvstat v2 '+h,`https://api.mcsrvstat.us/2/${h}`,g))});
- const rs=await Promise.allSettled(jobs);
- return rs.filter(r=>r.status==='fulfilled').map(r=>{const a=r.value;a.st=cls(a);return a})};
-checkStatus=async function(man){const d=$('sdisp');if(!d)return;const mode=S.site.mode||'auto',msg=S.site.msg||'';
- const card=(ic,col,h,ex)=>{d.innerHTML=`<div class="sico" style="color:${col}">${ic}</div><h3 style="color:${col};font-size:1.8rem;font-weight:900">${h}</h3><p style="direction:ltr;color:#a0a0c0;font-weight:700">IP: ${CFG.ADDR}:${CFG.PORT}</p>${ex||''}`},mm=msg?`<p style="color:#ffd98a;font-weight:700">${esc(msg)}</p>`:'';
- if(mode==='maint')return card('🛠️','#ffb020','السيرفر في صيانة',mm);if(mode==='open')return card('🟢','#2ecc71','السيرفر مفتوح',mm);if(mode==='closed')return card('🔴','#e74c3c','السيرفر مقفول',mm);
- if(man||!d.innerHTML)d.innerHTML='<p style="color:#aaa;font-weight:700">⏳ جاري قراءة حالة السيرفر الحقيقية...</p>';
- const r=await readSrv();if(!r.length)return card('⚠️','#ffd700','تعذر قراءة حالة السيرفر','<p style="color:#a0a0c0">كل مصادر الفحص لم ترد، حاول بعد قليل</p>');
- const n=k=>r.filter(a=>a.st===k).length,top=n('on')?'on':n('start')?'start':'off',ref=r.find(a=>a.st===top),
-  dbg=S.admin?`<details style="direction:ltr;text-align:left;font-size:.7rem;color:#888;max-width:100%"><summary>debug (للأدمن)</summary><pre style="white-space:pre-wrap">${esc(JSON.stringify(r,null,1))}</pre></details>`:'',
-  tm=`<p style="color:#777;font-size:.75rem">آخر فحص: ${new Date().toLocaleTimeString('ar-EG')} — ${r.map(a=>a.src).join(' + ')}</p>${dbg}`;
- if(top==='on')return card('🟢','#2ecc71','السيرفر مفتوح',`<p style="color:#c8f7dc;font-weight:700">👥 اللاعبين: ${ref.p}/${ref.m}${ref.v?' — '+esc(ref.v):''}</p>`+tm);
- if(top==='start')return card('🟡','#ffb020','السيرفر بيشتغل دلوقتي...','<p style="color:#a0a0c0">استنى دقيقة وحدّث الصفحة</p>'+tm);
- card('🔴','#e74c3c','السيرفر مقفول',tm)};
-
-/* ---------- رفع أي ملف في الشروحات ---------- */
-const tf=$('tfile');tf.removeAttribute('accept');tf.closest('.card').querySelector('h3').textContent='📤 رفع شروحات (أي ملف: صورة / فيديو / صوت / ZIP / PDF ...)';
-renderTuts=function(){const ic={zip:'📦',rar:'📦','7z':'📦',pdf:'📄',apk:'🤖',exe:'⚙️',txt:'📝',doc:'📃',docx:'📃',xls:'📊',xlsx:'📊',json:'🧾',lua:'🧩',jar:'☕'};
- $('tgrid').innerHTML=S.tuts.length?S.tuts.map(m=>{const u=esc(m.url),fn=(m.path||'file').replace(/^\d+_/,''),ext=(fn.split('.').pop()||'').toLowerCase(),
-  el=m.type==='video'?`<video src="${u}" controls preload="metadata"></video>`:m.type==='audio'?`<div style="padding:30px 12px 6px;text-align:center;font-size:2.4rem">🎧</div><audio src="${u}" controls style="width:92%;margin:0 4% 8px"></audio>`
-   :m.type==='file'?`<div style="padding:26px 12px 8px;text-align:center"><div style="font-size:3.2rem">${ic[ext]||'📁'}</div><div style="direction:ltr;font-size:.78rem;color:#a0a0c0;word-break:break-all;margin-top:6px">${esc(fn)}</div></div><a class="sub" style="margin:6px 12px 12px;width:auto;text-decoration:none;padding:10px" href="${u}?download=${encodeURIComponent(fn)}" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> تحميل</a>`
-   :`<img src="${u}" alt="" loading="lazy" onclick="window.open('${u}')">`;
-  return `<div class="mi">${el}<div style="padding:12px;display:flex;justify-content:space-between;align-items:center"><h4>${esc(m.title)}</h4>${S.admin?`<button class="mini" style="background:var(--no)" onclick="delTut('${m.id}')">🗑</button>`:''}</div></div>`}).join(''):'<p style="color:#aaa">لا توجد شروحات حالياً.</p>'};
-upTut=async function(){if(!S.admin)return;const f=$('tfile').files[0],t=$('ttl2').value.trim();if(!f||!t)return toast('اختار ملف واكتب عنوان');
- const ty=f.type.startsWith('video')?'video':f.type.startsWith('audio')?'audio':f.type.startsWith('image')?'image':'file',path=Date.now()+'_'+f.name.replace(/[^\w.-]/g,'_'),bar=$('tprog');bar.style.width='70%';
- const up=await sb.storage.from('tutorials').upload(path,f,{contentType:f.type||'application/octet-stream'});if(up.error){bar.style.width='0';return toast('❌ فشل الرفع: '+up.error.message)}
- const url=sb.storage.from('tutorials').getPublicUrl(path).data.publicUrl,r=await sb.from('tuts').insert({title:t,url,type:ty,path,t:Date.now()});bar.style.width='100%';setTimeout(()=>bar.style.width='0',900);
- if(r.error)return toast('❌ '+r.error.message);$('tfile').value=$('ttl2').value='';toast('✅ تم الرفع وظهر للجميع')};
-
-/* ---------- سجل تسجيل الدخول بالديسكورد ---------- */
-document.querySelector('#admin-panel .split').insertAdjacentHTML('beforebegin',`<div class="card"><h3 style="color:var(--c);margin-bottom:15px"><i class="fa-brands fa-discord"></i> سجل تسجيل الدخول بالديسكورد (<span id="lgc">0</span>)</h3><input class="rs" id="lgs" style="margin:0 0 14px" placeholder="🔎 ابحث بالاسم أو الـ ID..." oninput="renderLogins()"><div class="tl" id="lgn" style="max-height:480px;overflow-y:auto"></div></div>`);
-window.renderLogins=function(){const e=$('lgn');if(!e)return;const q=($('lgs').value||'').trim().toLowerCase(),all=S.logins||[],a=all.filter(l=>!q||(l.name+l.handle+l.id).toLowerCase().includes(q));$('lgc').textContent=all.length;
- e.innerHTML=a.length?a.map(l=>`<div class="tk" style="display:flex;gap:12px;align-items:center"><img src="${esc(l.avatar)}" referrerpolicy="no-referrer" alt="" style="width:46px;height:46px;border-radius:50%;border:2px solid var(--c);object-fit:cover"><div style="flex:1;min-width:0"><b>${esc(l.name)}</b> <span style="color:#8a8fb5;direction:ltr;display:inline-block">@${esc(l.handle)}</span><div style="font-size:.8rem;color:#a0a0c0;direction:ltr;text-align:right;cursor:pointer" title="اضغط للنسخ" onclick="navigator.clipboard.writeText('${esc(l.id)}');toast('تم نسخ الـ ID')">ID: ${esc(l.id)}</div></div><div style="font-size:.78rem;color:var(--g)">🕒 ${esc(l.exactTimestamp)}</div></div>`).join(''):'<p style="color:#aaa">لا توجد عمليات دخول بعد.</p>'};
-async function logLogin(d){if(!SB_OK)return;try{await sb.from('logins').insert({uid:d.id,ts:Date.now(),data:{id:d.id,name:d.global_name||d.username,handle:d.username,avatar:d.avatar?`https://cdn.discordapp.com/avatars/${d.id}/${d.avatar}.png?size=128`:'',exactTimestamp:ts()}})}catch(e){}}
-const _ia=initAuth;initAuth=async function(){const tk=new URLSearchParams(location.hash.slice(1)).get('access_token');let d=null;
- if(tk){try{const r=await fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+tk}});if(r.ok)d=await r.json()}catch(e){}}
- await _ia();if(d)logLogin(d)};
-const _la=loadAll;loadAll=async function(){await _la();S.logins=S.admin&&SB_OK?(await rows('logins',q=>q.order('ts',{ascending:false}).limit(500))).map(r=>r.data):[];renderLogins()};
-const _ra2=renderAdmin;renderAdmin=function(){_ra2();renderLogins()};
-})();
-
+/* ===================== تشغيل ===================== */
+(async function(){
+ bgInit();homeInit();apRender();intro();await authInit();
+ const[a,s,i,m]=await Promise.all([kvGet('apply'),kvGet('streamers'),kvGet('intro'),kvGet('status')]);
+ if(a)AP=Object.assign(AP,a);if(s)ST=s;if(m)SM=m;if(i){IC=i;localStorage.setItem('nv_intro',JSON.stringify(i))}
+ apRender();stRead();loadStreams();presence();
+ setInterval(()=>{if(!document.hidden)stRead()},20000);
+ setInterval(()=>{if(!document.hidden&&$('streams').classList.contains('on'))loadStreams()},60000);
+ setTimeout(()=>$$('.rv:not(.in)').forEach(e=>e.classList.add('in')),5000)})();
 </script>
 </body>
 </html>
